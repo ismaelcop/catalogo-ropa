@@ -2,13 +2,13 @@
   {
     "nombre": "Zapatilla Hombre",
     "precio": 1000,
-    "imagen": "img/zapatilla2.jpg",
+    "imagen": "img/zapatilla2.jpeg",
     "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
   },
   {
     "nombre": "Zapatilla Mujer",
     "precio": 2000,
-    "imagen": "img/zapatilla1.jpg",
+    "imagen": "img/zapatilla1.jpeg",
     "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
   }
 ]
