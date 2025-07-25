@@ -1,22 +1,14 @@
 [
- {
-  "Nombre": "Zapatilla Hombre",
-  "Precio": 1000,
-  "Imagen": "{\"fileName\":\"Reserved_ImageAttachment_[6]_[Imagen][32]_[4763ef2835b346bca2630c38a7e29115][1]_[3].jpeg\",\"originalImageName\":\"zapatilla2\"}",
-  "mp_url": "https:\/\/www.ejemplo.com\/pagina-de-prueba",
-  "Activo": true,
-  "Talle": "42",
-  "Tipo de elemento": "Elemento",
-  "Ruta de acceso": "sites\/DMS\/Lists\/Productos_ropa"
- },
- {
-  "Nombre": "Zapatilla Mujer",
-  "Precio": 2000,
-  "Imagen": "{\"fileName\":\"Reserved_ImageAttachment_[6]_[Imagen][32]_[f6c9233dccf34bc7bb14904ea48f75af][1]_[1].jpeg\",\"originalImageName\":\"zapatilla1\"}",
-  "mp_url": "https:\/\/www.ejemplo.com\/pagina-de-prueba",
-  "Activo": true,
-  "Talle": "35",
-  "Tipo de elemento": "Elemento",
-  "Ruta de acceso": "sites\/DMS\/Lists\/Productos_ropa"
- }
+  {
+    "nombre": "Zapatilla Hombre",
+    "precio": 1000,
+    "imagen": "img/zapatilla2.jpg",
+    "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
+  },
+  {
+    "nombre": "Zapatilla Mujer",
+    "precio": 2000,
+    "imagen": "img/zapatilla1.jpg",
+    "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
+  }
 ]
