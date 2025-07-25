@@ -2,12 +2,14 @@
   {
     "nombre": "Zapatilla Hombre",
     "precio": 1000,
+    "talle": "42",
     "imagen": "img/zapatilla2.jpeg",
     "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
   },
   {
     "nombre": "Zapatilla Mujer",
     "precio": 2000,
+    "talle": "39",
     "imagen": "img/zapatilla1.jpeg",
     "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
   }
