@@ -13,6 +13,7 @@ if (producto) {
       <div class="info">
         <h2>${producto.nombre}</h2>
         <p><strong>Precio:</strong> $${producto.precio}</p>
+        <p><strong>Talle:</strong> ${producto.talle}</p>
         <a href="${producto.mp_url}" target="_blank">
           <button>Comprar ahora</button>
         </a>
