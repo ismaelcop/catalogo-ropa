@@ -14,15 +14,23 @@ if (producto) {
         <h2>${producto.nombre}</h2>
         <p><strong>Precio:</strong> $${producto.precio}</p>
         <p><strong>Talle:</strong> ${producto.talle}</p>
-        <a href="${producto.mp_url}" target="_blank">
-          <button>Comprar ahora</button>
-        </a>
-        <a href="index.html">
-          <button style="background-color: grey; margin-left: 10px;">Volver</button>
-        </a>
+        <div class="buttons">
+          <button class="btn-comprar">Comprar ahora</button>
+          <button class="btn-volver">Volver</button>
+        </div>
       </div>
     </div>
   `;
+
+  // Funciones de los botones
+  document.querySelector(".btn-comprar").addEventListener("click", () => {
+    window.open(producto.mp_url, "_blank");
+  });
+
+  document.querySelector(".btn-volver").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
 } else {
   detalle.innerHTML = "<p>Producto no encontrado.</p>";
 }
