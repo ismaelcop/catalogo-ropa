@@ -1,16 +1,35 @@
 [
   {
-    "nombre": "Zapatilla Hombre",
-    "precio": 1000,
-    "talle": "42",
-    "imagen": "img/zapatilla2.jpeg",
-    "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
+    "id": 1,
+    "nombre": "Campera Denim",
+    "precio": 7500,
+    "talle": "M",
+    "descripcion": "Campera de jean clásica, ideal para media estación.",
+    "imagenes": [
+      "img/campera1.jpg",
+      "img/campera1_2.jpg"
+    ]
   },
   {
-    "nombre": "Zapatilla Mujer",
-    "precio": 2000,
-    "talle": "39",
-    "imagen": "img/zapatilla1.jpeg",
-    "mp_url": "https://www.mercadopago.com.ar/link-ejemplo"
+    "id": 2,
+    "nombre": "Remera Oversize",
+    "precio": 3200,
+    "talle": "L",
+    "descripcion": "Remera 100% algodón estilo oversize.",
+    "imagenes": [
+      "img/remera1.jpg",
+      "img/remera1_2.jpg"
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "Zapatillas Urbanas",
+    "precio": 12900,
+    "talle": "42",
+    "descripcion": "Zapatillas con suela de goma y plantilla ergonómica.",
+    "imagenes": [
+      "img/zapatillas1.jpg",
+      "img/zapatillas1_2.jpg"
+    ]
   }
 ]
