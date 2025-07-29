@@ -6,8 +6,8 @@
     "talle": "M",
     "descripcion": "Campera de jean clásica, ideal para media estación.",
     "imagenes": [
-     "img/zapatilla1.jpg",
-      "img/zapatilla2.jpg"
+     "img/zapatilla1.jpeg",
+      "img/zapatilla2.jpeg"
     ]
   },
   {
@@ -17,8 +17,8 @@
     "talle": "L",
     "descripcion": "Remera 100% algodón estilo oversize.",
     "imagenes": [
-     "img/zapatilla1.jpg",
-      "img/zapatilla2.jpg"
+     "img/zapatilla1.jpeg",
+      "img/zapatilla2.jpeg"
     ]
   },
   {
@@ -28,8 +28,8 @@
     "talle": "42",
     "descripcion": "Zapatillas con suela de goma y plantilla ergonómica.",
     "imagenes": [
-      "img/zapatilla1.jpg",
-      "img/zapatilla2.jpg"
+      "img/zapatilla1.jpeg",
+      "img/zapatilla2.jpeg"
     ]
   }
 ]
