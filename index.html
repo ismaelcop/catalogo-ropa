@@ -41,7 +41,15 @@
       <p><strong>Total: $<span id="total-carrito">0</span></strong></p>
       <form id="formulario-pedido">
         <label>Nombre: <input type="text" name="nombre" required></label>
-        <label>Dirección: <input type="text" name="direccion" required></label>
+        <label>Dirección:
+  <select name="direccion" required>
+    <option value="">Seleccionar</option>
+    <option value="Lugar 1">Lugar 1</option>
+    <option value="Lugar 2">Lugar 2</option>
+    <option value="Lugar 3">Lugar 3</option>
+  </select>
+</label>
+
         <label>Fecha de entrega: <input type="date" name="fecha" required></label>
         <button type="submit">Finalizar compra</button>
       </form>
