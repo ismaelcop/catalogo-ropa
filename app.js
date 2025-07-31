@@ -16,11 +16,19 @@ const modalCarrito = document.getElementById("modal-carrito");
 const carritoItems = document.getElementById("carrito-items");
 const totalCarrito = document.getElementById("total-carrito");
 
-fetch("productos.json")
+// 🔁 URL del backend (cambiá esto si cambia tu backend Replit)
+const backendURL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
+
+// 📦 Cargar productos desde el backend
+fetch(backendURL)
   .then(res => res.json())
   .then(data => {
     productos = data;
     mostrarCatalogo();
+  })
+  .catch(error => {
+    console.error("Error al cargar productos:", error);
+    alert("No se pudieron cargar los productos. Intenta nuevamente.");
   });
 
 function mostrarCatalogo() {
