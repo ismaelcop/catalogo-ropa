@@ -93,7 +93,18 @@ function mostrarCarrito() {
 
 document.getElementById("formulario-pedido").onsubmit = (e) => {
   e.preventDefault();
+  
+  const fechaInput = e.target.fecha.value;
+  const fecha = new Date(fechaInput);
+  const dia = fecha.getDay(); // 2 = Martes, 4 = Jueves
+
+  if (dia !== 2 && dia !== 4) {
+    alert("Solo se puede seleccionar martes o jueves como fecha de entrega.");
+    return;
+  }
+
   alert("¡Gracias por tu compra! Te contactaremos pronto.");
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
+
