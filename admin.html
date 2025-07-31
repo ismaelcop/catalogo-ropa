@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Administración</title>
+  <style>
+    body { font-family: Arial; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    input, select { margin: 5px; }
+    button { margin: 2px; }
+  </style>
+</head>
+<body>
+  <h1>Panel de Administración de Productos</h1>
+
+  <form id="productoForm">
+    <input type="text" id="nombre" placeholder="Nombre" required>
+    <input type="number" id="precio" placeholder="Precio" required>
+    <input type="text" id="talle" placeholder="Talle">
+    <input type="text" id="descripcion" placeholder="Descripción">
+    <input type="text" id="categoria" placeholder="Categoría">
+    <input type="text" id="estado" placeholder="Estado">
+    <input type="text" id="epoca" placeholder="Época">
+    <input type="text" id="material" placeholder="Material">
+    <input type="text" id="imagenes" placeholder="Imagenes (url separadas por coma)">
+    <label>
+      <input type="checkbox" id="oferta"> Oferta
+    </label>
+    <label>
+      <input type="checkbox" id="activo" checked> Activo
+    </label>
+    <button type="submit">Crear Producto</button>
+  </form>
+
+  <h2>Lista de Productos</h2>
+  <table id="tablaProductos">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Precio</th>
+        <th>Activo</th>
+        <th>Oferta</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API = 'https://TU-BACKEND.replit.app/productos'; // Cambia esta URL
+
+    const tablaBody = document.querySelector('#tablaProductos tbody');
+    const form = document.getElementById('productoForm');
+
+    async function cargarProductos() {
+      const res = await fetch(API);
+      const productos = await res.json();
+      tablaBody.innerHTML = '';
+      productos.forEach(prod => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${prod.id}</td>
+          <td>${prod.nombre}</td>
+          <td>${prod.precio}</td>
+          <td>${prod.activo ? '✅' : '❌'}</td>
+          <td>${prod.oferta ? '🟢' : '⚪'}</td>
+          <td>
+            <button onclick="eliminar(${prod.id})">Eliminar</button>
+            <button onclick="toggle(${prod.id}, 'activo')">${prod.activo ? 'Desactivar' : 'Activar'}</button>
+            <button onclick="toggle(${prod.id}, 'oferta')">${prod.oferta ? 'Quitar Oferta' : 'Marcar Oferta'}</button>
+          </td>
+        `;
+        tablaBody.appendChild(fila);
+      });
+    }
+
+    async function eliminar(id) {
+      await fetch(`${API}/${id}`, { method: 'DELETE' });
+      cargarProductos();
+    }
+
+    async function toggle(id, campo) {
+      const prod = await fetch(`${API}/${id}`).then(r => r.json());
+      prod[campo] = !prod[campo];
+      await fetch(`${API}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [campo]: prod[campo] })
+      });
+      cargarProductos();
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const nuevo = {
+        nombre: nombre.value,
+        precio: parseFloat(precio.value),
+        talle: talle.value,
+        descripcion: descripcion.value,
+        categoria: categoria.value,
+        estado: estado.value,
+        epoca: epoca.value,
+        material: material.value,
+        imagenes: imagenes.value.split(',').map(i => i.trim()),
+        oferta: oferta.checked,
+        activo: activo.checked
+      };
+      await fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nuevo)
+      });
+      form.reset();
+      cargarProductos();
+    };
+
+    cargarProductos();
+  </script>
+</body>
+</html>
