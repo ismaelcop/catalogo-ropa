@@ -1,15 +1,18 @@
-fetch("productos.json")
+// URL del backend de Replit
+const BACKEND_URL = "https://mi-backend--ismael201650.repl.co";
+
+fetch(`${BACKEND_URL}/productos`)
   .then(res => res.json())
   .then(productos => {
     const contenedor = document.getElementById("productos");
     contenedor.innerHTML = "";
 
-    productos.forEach((p, index) => {
+    productos.forEach((p) => {
       const div = document.createElement("div");
       div.className = "producto";
       div.innerHTML = `
-        <a href="detalle.html?id=${index}">
-          <img src="${p.imagen}" alt="${p.nombre}">
+        <a href="detalle.html?id=${p.id}">
+          <img src="${p.imagenes[0]}" alt="${p.nombre}">
           <h3>${p.nombre}</h3>
         </a>
         <p><strong>Precio:</strong> $${p.precio}</p>
@@ -20,9 +23,5 @@ fetch("productos.json")
       `;
       contenedor.appendChild(div);
     });
-
-    // Guardamos los productos en localStorage para usarlos en detalle.html
-    localStorage.setItem("productos", JSON.stringify(productos));
   })
   .catch(error => console.error("Error cargando productos:", error));
-
