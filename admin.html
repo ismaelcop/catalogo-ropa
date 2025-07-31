@@ -2,74 +2,27 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Panel de Administración</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administrador de Productos</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Administración de Productos</h1>
+  <h1>Administrar Productos</h1>
 
-  <form id="producto-form">
+  <form id="form-producto">
+    <input type="hidden" id="producto-id">
     <input type="text" id="nombre" placeholder="Nombre" required />
     <input type="number" id="precio" placeholder="Precio" required />
-    <input type="text" id="talle" placeholder="Talle" />
+    <input type="text" id="talle" placeholder="Talle" required />
     <textarea id="descripcion" placeholder="Descripción"></textarea>
-    <input type="text" id="imagenes" placeholder="URL imagen 1, imagen 2..." />
-    <button type="submit">Agregar producto</button>
+    <input type="text" id="imagenes" placeholder="URLs de imágenes (separadas por coma)" required />
+    <button type="submit">Guardar</button>
   </form>
 
-  <h2>Listado de productos</h2>
-  <ul id="lista-productos"></ul>
+  <h2>Lista de Productos</h2>
+  <div id="lista-productos"></div>
 
-  <script>
-    const backendURL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';// ⬅️ Reemplazá esto con tu URL real de Replit
-
-    const lista = document.getElementById('lista-productos');
-    const form = document.getElementById('producto-form');
-
-    function cargarProductos() {
-      fetch(backendURL)
-        .then(res => res.json())
-        .then(data => {
-          lista.innerHTML = '';
-          data.forEach(p => {
-            const li = document.createElement('li');
-            li.innerHTML = `
-              <strong>${p.nombre}</strong> - $${p.precio}
-              <button onclick="borrarProducto(${p.id})">🗑️</button>
-            `;
-            lista.appendChild(li);
-          });
-        });
-    }
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const nuevoProducto = {
-        nombre: document.getElementById('nombre').value,
-        precio: parseFloat(document.getElementById('precio').value),
-        talle: document.getElementById('talle').value,
-        descripcion: document.getElementById('descripcion').value,
-        imagenes: document.getElementById('imagenes').value.split(',').map(i => i.trim())
-      };
-
-      fetch(backendURL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(nuevoProducto)
-      })
-        .then(res => res.json())
-        .then(() => {
-          form.reset();
-          cargarProductos();
-        });
-    });
-
-    function borrarProducto(id) {
-      fetch(`${backendURL}/${id}`, { method: 'DELETE' })
-        .then(() => cargarProductos());
-    }
-
-    cargarProductos();
-  </script>
+  <script src="admin.js"></script>
 </body>
 </html>
+
