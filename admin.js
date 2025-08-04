@@ -24,19 +24,33 @@ form.onsubmit = async (e) => {
 };
 
 async function cargarProductos() {
-  const res = await fetch(API_URL);
-  const productos = await res.json();
-  lista.innerHTML = productos.map(p => `
-    <div>
-      <h3>${p.nombre} - $${p.precio}</h3>
-      <p>${p.descripcion}</p>
-      <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
-      ${p.imagenes.map(img => `<img src="https://tu-replit-url.repl.co${img}" width="100"/>`).join('')}
-      <button onclick="editar(${p.id})">Editar</button>
-      <button onclick="eliminar(${p.id})">Eliminar</button>
-    </div>
-  `).join('');
+  try {
+    const res = await fetch(API_URL);
+
+    // Verificamos que el response sea JSON válido
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType.includes("application/json")) {
+      throw new Error("La respuesta no es un JSON válido.");
+    }
+
+    const productos = await res.json();
+
+    lista.innerHTML = productos.map(p => `
+      <div>
+        <h3>${p.nombre} - $${p.precio}</h3>
+        <p>${p.descripcion}</p>
+        <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+        ${p.imagenes.map(img => `<img src="https://tu-replit-url.repl.co${img}" width="100"/>`).join('')}
+        <button onclick="editar(${p.id})">Editar</button>
+        <button onclick="eliminar(${p.id})">Eliminar</button>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error("Error al cargar productos:", err);
+    mostrarMensaje("No se pudieron cargar los productos", false);
+  }
 }
+
 
 function editar(id) {
   fetch(`${API_URL}/${id}`)
@@ -57,6 +71,7 @@ function eliminar(id) {
 }
 
 cargarProductos();
+
 
 
 
