@@ -16,10 +16,11 @@ const modalCarrito = document.getElementById("modal-carrito");
 const carritoItems = document.getElementById("carrito-items");
 const totalCarrito = document.getElementById("total-carrito");
 
-// 🔁 URL del backend (cambiá esto si cambia tu backend Replit)
-const backendURL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
+// URL CORRECTA del backend de Replit
+const backendBase = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
+const backendURL = `${backendBase}/productos`;
 
-// 📦 Cargar productos desde el backend
+// 📦 Cargar productos
 fetch(backendURL)
   .then(res => res.json())
   .then(data => {
@@ -28,7 +29,7 @@ fetch(backendURL)
   })
   .catch(error => {
     console.error("Error al cargar productos:", error);
-    alert("No se pudieron cargar los productos. Intenta nuevamente.");
+    alert("No se pudieron cargar los productos.");
   });
 
 function mostrarCatalogo() {
@@ -37,7 +38,7 @@ function mostrarCatalogo() {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-     <img src="${backendURL.replace('/productos', '')}${prod.imagenes[0]}" alt="${prod.nombre}">
+      <img src="${prod.imagenes[0].startsWith('/uploads') ? backendBase + prod.imagenes[0] : prod.imagenes[0]}" alt="${prod.nombre}">
       <h3>${prod.nombre}</h3>
       <p>$${prod.precio}</p>
     `;
@@ -53,14 +54,14 @@ function mostrarDetalle(prod) {
   modalDescripcion.textContent = prod.descripcion;
   modalPrecio.textContent = prod.precio;
   modalTalle.textContent = prod.talle;
-  imgPrincipal.src = prod.imagenes[0];
+  imgPrincipal.src = prod.imagenes[0].startsWith('/uploads') ? backendBase + prod.imagenes[0] : prod.imagenes[0];
   miniaturas.innerHTML = "";
   prod.imagenes.forEach((img, i) => {
     const mini = document.createElement("img");
-    mini.src = img;
+    mini.src = img.startsWith('/uploads') ? backendBase + img : img;
     mini.classList.toggle("selected", i === 0);
     mini.onclick = () => {
-      imgPrincipal.src = img;
+      imgPrincipal.src = mini.src;
       document.querySelectorAll("#miniaturas img").forEach(m => m.classList.remove("selected"));
       mini.classList.add("selected");
     };
@@ -115,5 +116,4 @@ document.getElementById("formulario-pedido").onsubmit = (e) => {
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
-
 
