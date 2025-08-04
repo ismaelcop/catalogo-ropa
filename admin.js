@@ -25,16 +25,17 @@ form.onsubmit = async (e) => {
 async function cargarProductos() {
   const res = await fetch(API_URL);
   const productos = await res.json();
-  lista.innerHTML = productos.map(p => 
-    <div>
-      <h3>${p.nombre} - $${p.precio}</h3>
-      <p>${p.descripcion}</p>
-      <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
-      ${p.imagenes.map(img => <img src="${'https://tu-replit-url.repl.co'}${img}" width="100"/>).join('')}
-      <button onclick="editar(${p.id})">Editar</button>
-      <button onclick="eliminar(${p.id})">Eliminar</button>
-    </div>
-  ).join('');
+lista.innerHTML = productos.map(p => `
+  <div>
+    <h3>${p.nombre} - $${p.precio}</h3>
+    <p>${p.descripcion}</p>
+    <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+    ${p.imagenes.map(img => `<img src="https://tu-replit-url.repl.co${img}" width="100"/>`).join('')}
+    <button onclick="editar(${p.id})">Editar</button>
+    <button onclick="eliminar(${p.id})">Eliminar</button>
+  </div>
+`).join('');
+
 }
 
 function editar(id) {
@@ -54,6 +55,7 @@ function eliminar(id) {
 }
 
 cargarProductos();
+
 
 
 
