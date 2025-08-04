@@ -4,25 +4,28 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administrador de Productos</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Administrar Productos</h1>
 
-  <form id="form-producto">
+  <form id="form-producto" enctype="multipart/form-data">
     <input type="hidden" id="producto-id">
     <input type="text" id="nombre" placeholder="Nombre" required />
     <input type="number" id="precio" placeholder="Precio" required />
     <input type="text" id="talle" placeholder="Talle" required />
     <textarea id="descripcion" placeholder="Descripción"></textarea>
-    <input type="text" id="imagenes" placeholder="URLs de imágenes (separadas por coma)" required />
+    <input type="file" id="imagenes" multiple />
+    <label><input type="checkbox" id="activo"> Activo</label>
+    <label><input type="checkbox" id="oferta"> Oferta</label>
     <button type="submit">Guardar</button>
   </form>
 
-  <h2>Lista de Productos</h2>
   <div id="lista-productos"></div>
 
   <script src="admin.js"></script>
 </body>
 </html>
+
+
 
