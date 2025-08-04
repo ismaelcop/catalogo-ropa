@@ -11,8 +11,7 @@ form.onsubmit = async (e) => {
 
   const id = document.getElementById('producto-id').value;
   const method = id ? 'PUT' : 'POST';
-  const url = id ? ${https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/}/${id} : https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/;
-
+  const url = id ? `${API_URL}/${id}` : API_URL;
   await fetch(url, {
     method,
     body: formData
@@ -55,6 +54,7 @@ function eliminar(id) {
 }
 
 cargarProductos();
+
 
 
 
