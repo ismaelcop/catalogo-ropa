@@ -12,6 +12,7 @@ form.onsubmit = async (e) => {
   const id = document.getElementById('producto-id').value;
   const method = id ? 'PUT' : 'POST';
   const url = id ? `${API_URL}/${id}` : API_URL;
+
   await fetch(url, {
     method,
     body: formData
@@ -25,33 +26,34 @@ form.onsubmit = async (e) => {
 async function cargarProductos() {
   const res = await fetch(API_URL);
   const productos = await res.json();
-lista.innerHTML = productos.map(p => `
-  <div>
-    <h3>${p.nombre} - $${p.precio}</h3>
-    <p>${p.descripcion}</p>
-    <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
-    ${p.imagenes.map(img => `<img src="https://tu-replit-url.repl.co${img}" width="100"/>`).join('')}
-    <button onclick="editar(${p.id})">Editar</button>
-    <button onclick="eliminar(${p.id})">Eliminar</button>
-  </div>
-`).join('');
-
+  lista.innerHTML = productos.map(p => `
+    <div>
+      <h3>${p.nombre} - $${p.precio}</h3>
+      <p>${p.descripcion}</p>
+      <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+      ${p.imagenes.map(img => `<img src="https://tu-replit-url.repl.co${img}" width="100"/>`).join('')}
+      <button onclick="editar(${p.id})">Editar</button>
+      <button onclick="eliminar(${p.id})">Eliminar</button>
+    </div>
+  `).join('');
 }
 
 function editar(id) {
-  fetch(${API_URL}/${id}).then(res => res.json()).then(p => {
-    document.getElementById('producto-id').value = p.id;
-    document.getElementById('nombre').value = p.nombre;
-    document.getElementById('precio').value = p.precio;
-    document.getElementById('talle').value = p.talle;
-    document.getElementById('descripcion').value = p.descripcion;
-    document.getElementById('activo').checked = p.activo;
-    document.getElementById('oferta').checked = p.oferta;
-  });
+  fetch(`${API_URL}/${id}`)
+    .then(res => res.json())
+    .then(p => {
+      document.getElementById('producto-id').value = p.id;
+      document.getElementById('nombre').value = p.nombre;
+      document.getElementById('precio').value = p.precio;
+      document.getElementById('talle').value = p.talle;
+      document.getElementById('descripcion').value = p.descripcion;
+      document.getElementById('activo').checked = p.activo;
+      document.getElementById('oferta').checked = p.oferta;
+    });
 }
 
 function eliminar(id) {
-  fetch(${API_URL}/${id}, { method: 'DELETE' }).then(cargarProductos);
+  fetch(`${API_URL}/${id}`, { method: 'DELETE' }).then(cargarProductos);
 }
 
 cargarProductos();
