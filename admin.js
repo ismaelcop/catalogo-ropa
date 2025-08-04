@@ -1,4 +1,4 @@
-const API_URL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/';
+const API_URL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
 
 const form = document.getElementById('form-producto');
 const lista = document.getElementById('lista-productos');
@@ -55,5 +55,6 @@ function eliminar(id) {
 }
 
 cargarProductos();
+
 
 
