@@ -1,81 +1,58 @@
-const backendURL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
+const API_URL = 'https://tu-replit-url.repl.co/productos';
+
 const form = document.getElementById('form-producto');
 const lista = document.getElementById('lista-productos');
 
-let productos = [];
+form.onsubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
+  formData.append('activo', document.getElementById('activo').checked);
+  formData.append('oferta', document.getElementById('oferta').checked);
 
-function cargarProductos() {
-  fetch(`${backendURL}/productos`)
-    .then(res => res.json())
-    .then(data => {
-      productos = data;
-      mostrarLista();
-    });
+  const id = document.getElementById('producto-id').value;
+  const method = id ? 'PUT' : 'POST';
+  const url = id ? `${API_URL}/${id}` : API_URL;
+
+  await fetch(url, {
+    method,
+    body: formData
+  });
+
+  form.reset();
+  document.getElementById('producto-id').value = '';
+  cargarProductos();
+};
+
+async function cargarProductos() {
+  const res = await fetch(API_URL);
+  const productos = await res.json();
+  lista.innerHTML = productos.map(p => `
+    <div>
+      <h3>${p.nombre} - $${p.precio}</h3>
+      <p>${p.descripcion}</p>
+      <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+      ${p.imagenes.map(img => `<img src="${'https://tu-replit-url.repl.co'}${img}" width="100"/>`).join('')}
+      <button onclick="editar(${p.id})">Editar</button>
+      <button onclick="eliminar(${p.id})">Eliminar</button>
+    </div>
+  `).join('');
 }
 
-function mostrarLista() {
-  lista.innerHTML = '';
-  productos.forEach(prod => {
-    const div = document.createElement('div');
-    div.innerHTML = `
-      <strong>${prod.nombre}</strong> - $${prod.precio} - Talle: ${prod.talle}<br>
-      <button onclick="editarProducto(${prod.id})">Editar</button>
-      <button onclick="eliminarProducto(${prod.id})">Eliminar</button>
-      <hr/>
-    `;
-    lista.appendChild(div);
+function editar(id) {
+  fetch(`${API_URL}/${id}`).then(res => res.json()).then(p => {
+    document.getElementById('producto-id').value = p.id;
+    document.getElementById('nombre').value = p.nombre;
+    document.getElementById('precio').value = p.precio;
+    document.getElementById('talle').value = p.talle;
+    document.getElementById('descripcion').value = p.descripcion;
+    document.getElementById('activo').checked = p.activo;
+    document.getElementById('oferta').checked = p.oferta;
   });
 }
 
-form.onsubmit = (e) => {
-  e.preventDefault();
-  const id = document.getElementById('producto-id').value;
-  const nuevoProducto = {
-    nombre: document.getElementById('nombre').value,
-    precio: parseFloat(document.getElementById('precio').value),
-    talle: document.getElementById('talle').value,
-    descripcion: document.getElementById('descripcion').value,
-    imagenes: document.getElementById('imagenes').value.split(',').map(img => img.trim())
-  };
-
-  if (id) {
-    // Editar
-    fetch(`${backendURL}/productos/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(nuevoProducto)
-    }).then(() => {
-      form.reset();
-      cargarProductos();
-    });
-  } else {
-    // Agregar nuevo
-    fetch(`${backendURL}/productos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(nuevoProducto)
-    }).then(() => {
-      form.reset();
-      cargarProductos();
-    });
-  }
-};
-
-window.editarProducto = (id) => {
-  const prod = productos.find(p => p.id === id);
-  document.getElementById('producto-id').value = prod.id;
-  document.getElementById('nombre').value = prod.nombre;
-  document.getElementById('precio').value = prod.precio;
-  document.getElementById('talle').value = prod.talle;
-  document.getElementById('descripcion').value = prod.descripcion;
-  document.getElementById('imagenes').value = prod.imagenes.join(', ');
-};
-
-window.eliminarProducto = (id) => {
-  if (confirm('¿Eliminar este producto?')) {
-    fetch(`${backendURL}/productos/${id}`, { method: 'DELETE' })
-      .then(() => cargarProductos());
-  }
-};
+function eliminar(id) {
+  fetch(`${API_URL}/${id}`, { method: 'DELETE' }).then(cargarProductos);
+}
 
 cargarProductos();
+
