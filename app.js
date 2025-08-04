@@ -37,7 +37,7 @@ function mostrarCatalogo() {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <img src="${prod.imagenes[0]}" alt="${prod.nombre}">
+     <img src="${backendURL.replace('/productos', '')}${prod.imagenes[0]}" alt="${prod.nombre}">
       <h3>${prod.nombre}</h3>
       <p>$${prod.precio}</p>
     `;
@@ -115,4 +115,5 @@ document.getElementById("formulario-pedido").onsubmit = (e) => {
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
+
 
