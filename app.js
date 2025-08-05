@@ -1,53 +1,52 @@
+// URL base de tu backend en Replit
+const backendBase = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
+const backendURL  = `${backendBase}/productos`;
+
+// Estado global
 let productos = [];
 let carrito = [];
 let productoActual = null;
 
-const catalogo = document.getElementById("catalogo");
-const modal = document.getElementById("modal-detalle");
-const modalNombre = document.getElementById("modal-nombre");
-const modalDescripcion = document.getElementById("modal-descripcion");
-const modalPrecio = document.getElementById("modal-precio");
-const modalTalle = document.getElementById("modal-talle");
-const imgPrincipal = document.getElementById("img-principal");
-const miniaturas = document.getElementById("miniaturas");
-const agregarCarritoBtn = document.getElementById("agregar-carrito");
+// Elementos del DOM
+const catalogo      = document.getElementById("catalogo");
+const modalDetalle  = document.getElementById("modal-detalle");
+const modalNombre   = document.getElementById("modal-nombre");
+const modalDesc     = document.getElementById("modal-descripcion");
+const modalPrecio   = document.getElementById("modal-precio");
+const modalTalle    = document.getElementById("modal-talle");
+const imgPrincipal  = document.getElementById("img-principal");
+const miniaturas    = document.getElementById("miniaturas");
+const btnAgregar    = document.getElementById("agregar-carrito");
+const modalCarrito  = document.getElementById("modal-carrito");
+const carritoItems  = document.getElementById("carrito-items");
+const totalCarrito  = document.getElementById("total-carrito");
 
-const modalCarrito = document.getElementById("modal-carrito");
-const carritoItems = document.getElementById("carrito-items");
-const totalCarrito = document.getElementById("total-carrito");
-
-// URL CORRECTA del backend de Replit
-const backendBase = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
-const backendURL  = `${backendBase}/productos`;
-
-let productos = [];
-const catalogo = document.getElementById("catalogo");
-
+// 1) Carga inicial de productos
 fetch(backendURL)
   .then(res => res.json())
   .then(data => {
     productos = data;
     mostrarCatalogo(productos);
   })
-  .catch(error => {
-    console.error("Error al cargar productos:", error);
+  .catch(err => {
+    console.error("Error al cargar productos:", err);
     catalogo.innerHTML = "<p>No se pudieron cargar los productos.</p>";
   });
 
+// 2) Función para renderizar el catálogo
 function mostrarCatalogo(items) {
   catalogo.innerHTML = "";
-
   items.forEach(prod => {
-    // valida existencia de imagenes
+    // Validar imágenes
     const imgs = Array.isArray(prod.imagenes) ? prod.imagenes : [];
-    const imgSrc = imgs.length > 0
+    const src = imgs.length
       ? (imgs[0].startsWith('/uploads') ? backendBase + imgs[0] : imgs[0])
       : 'https://via.placeholder.com/150';
 
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <img src="${imgSrc}" alt="${prod.nombre}" />
+      <img src="${src}" alt="${prod.nombre}" />
       <h3>${prod.nombre}</h3>
       <p>$${prod.precio}</p>
     `;
@@ -56,52 +55,61 @@ function mostrarCatalogo(items) {
   });
 }
 
-// resto de tu código de detalle y carrito…
-
-}
-
-
+// 3) Mostrar modal de detalle
 function mostrarDetalle(prod) {
   productoActual = prod;
-  modal.classList.remove("hidden");
+  modalDetalle.classList.remove("hidden");
   modalNombre.textContent = prod.nombre;
-  modalDescripcion.textContent = prod.descripcion;
-  modalPrecio.textContent = prod.precio;
+  modalDesc.textContent  = prod.descripcion;
+  modalPrecio.textContent= prod.precio;
   modalTalle.textContent = prod.talle;
-  imgPrincipal.src = prod.imagenes[0].startsWith('/uploads') ? backendBase + prod.imagenes[0] : prod.imagenes[0];
+
+  // Imagen principal y miniaturas
+  const imgs = Array.isArray(prod.imagenes) ? prod.imagenes : [];
+  const mainSrc = imgs.length
+    ? (imgs[0].startsWith('/uploads') ? backendBase + imgs[0] : imgs[0])
+    : 'https://via.placeholder.com/300';
+  imgPrincipal.src = mainSrc;
+
   miniaturas.innerHTML = "";
-  prod.imagenes.forEach((img, i) => {
-    const mini = document.createElement("img");
-    mini.src = img.startsWith('/uploads') ? backendBase + img : img;
-    mini.classList.toggle("selected", i === 0);
-    mini.onclick = () => {
-      imgPrincipal.src = mini.src;
-      document.querySelectorAll("#miniaturas img").forEach(m => m.classList.remove("selected"));
-      mini.classList.add("selected");
+  imgs.forEach((img, i) => {
+    const url = img.startsWith('/uploads') ? backendBase + img : img;
+    const thumb = document.createElement("img");
+    thumb.src = url;
+    thumb.classList.toggle("selected", i === 0);
+    thumb.onclick = () => {
+      imgPrincipal.src = url;
+      miniaturas.querySelectorAll("img").forEach(m => m.classList.remove("selected"));
+      thumb.classList.add("selected");
     };
-    miniaturas.appendChild(mini);
+    miniaturas.appendChild(thumb);
   });
 }
 
-document.querySelector(".close").onclick = () => {
-  modal.classList.add("hidden");
+// 4) Cerrar modal detalle
+document.querySelector("#modal-detalle .close").onclick = () => {
+  modalDetalle.classList.add("hidden");
 };
 
-agregarCarritoBtn.onclick = () => {
+// 5) Agregar al carrito
+btnAgregar.onclick = () => {
   carrito.push(productoActual);
-  alert("Agregado al carrito");
-  modal.classList.add("hidden");
+  alert("Producto agregado al carrito");
+  modalDetalle.classList.add("hidden");
 };
 
+// 6) Ver carrito
 document.getElementById("ver-carrito").onclick = () => {
   mostrarCarrito();
   modalCarrito.classList.remove("hidden");
 };
 
+// 7) Cerrar carrito
 document.querySelector(".close-carrito").onclick = () => {
   modalCarrito.classList.add("hidden");
 };
 
+// 8) Renderizar carrito
 function mostrarCarrito() {
   carritoItems.innerHTML = "";
   let total = 0;
@@ -114,22 +122,21 @@ function mostrarCarrito() {
   totalCarrito.textContent = total;
 }
 
+// 9) Validar y enviar pedido
 document.getElementById("formulario-pedido").onsubmit = (e) => {
   e.preventDefault();
-  
-  const fechaInput = e.target.fecha.value;
-  const fecha = new Date(fechaInput);
-  const dia = fecha.getDay(); // 2 = Martes, 4 = Jueves
+  const fecha = new Date(e.target.fecha.value);
+  const dia   = fecha.getDay(); // 2=Martes,4=Jueves
 
   if (dia !== 2 && dia !== 4) {
-    alert("Solo se puede seleccionar martes o jueves como fecha de entrega.");
+    alert("Solo martes o jueves permitidos.");
     return;
   }
-
-  alert("¡Gracias por tu compra! Te contactaremos pronto.");
+  alert("¡Gracias por tu compra!");
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
+
 
 
 
