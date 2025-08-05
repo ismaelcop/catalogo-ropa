@@ -1,4 +1,5 @@
 const API_URL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
+const API_BASE = API_URL.replace('/productos', '');
 
 const form = document.getElementById('form-producto');
 const lista = document.getElementById('lista-productos');
@@ -16,7 +17,6 @@ form.onsubmit = async (e) => {
 
   try {
     const res = await fetch(url, { method, body: formData });
-
     if (!res.ok) throw new Error("No se pudo guardar el producto");
 
     mostrarMensaje("✅ Producto guardado con éxito", true);
@@ -45,7 +45,7 @@ async function cargarProductos() {
         <h3>${p.nombre} - $${p.precio}</h3>
         <p>${p.descripcion}</p>
         <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
-        ${p.imagenes.map(img => `<img src="${API_URL.replace('/productos', '')}${img}" width="100" style="margin-right: 5px"/>`).join('')}
+        ${p.imagenes.map(img => `<img src="${API_BASE}${img}" width="100" style="margin-right: 5px"/>`).join('')}
         <br/>
         <button onclick="editar(${p.id})">✏️ Editar</button>
         <button onclick="eliminar(${p.id})">🗑️ Eliminar</button>
@@ -93,8 +93,6 @@ function mostrarMensaje(texto, exito = true) {
 }
 
 cargarProductos();
-
-
 
 
 
