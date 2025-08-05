@@ -19,26 +19,32 @@ const totalCarrito = document.getElementById("total-carrito");
 // URL CORRECTA del backend de Replit
 const backendBase = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
 const backendURL = `${backendBase}/productos`;
+const backendURL  = `${backendBase}/productos`;
+
+let productos = [];
+const catalogo = document.getElementById("catalogo");
 
 // 📦 Cargar productos
 fetch(backendURL)
   .then(res => res.json())
   .then(data => {
-    productos = data;
-    mostrarCatalogo(productos);
-  })
   console.log("Respuesta del backend:", data);
   productos = data;
   mostrarCatalogo(productos);
 })
 
+    productos = data;
+    mostrarCatalogo(productos);
+  })
   .catch(error => {
     console.error("Error al cargar productos:", error);
     alert("No se pudieron cargar los productos.");
+    catalogo.innerHTML = "<p>No se pudieron cargar los productos.</p>";
   });
 
 function mostrarCatalogo(productos) {
   const catalogo = document.getElementById("catalogo");
+function mostrarCatalogo(items) {
   catalogo.innerHTML = "";
 
   productos.forEach(producto => {
@@ -46,9 +52,16 @@ function mostrarCatalogo(productos) {
     const imagenPrincipal = Array.isArray(producto.imagenes) && producto.imagenes.length > 0
       ? producto.imagenes[0]
       : "https://via.placeholder.com/150"; // imagen por defecto
+  items.forEach(prod => {
+    // valida existencia de imagenes
+    const imgs = Array.isArray(prod.imagenes) ? prod.imagenes : [];
+    const imgSrc = imgs.length > 0
+      ? (imgs[0].startsWith('/uploads') ? backendBase + imgs[0] : imgs[0])
+      : 'https://via.placeholder.com/150';
 
     const card = document.createElement("div");
     card.className = "producto";
+    card.className = "card";
     card.innerHTML = `
       <img src="${imagenPrincipal}" alt="${producto.nombre}" />
       <h3>${producto.nombre} - $${producto.precio}</h3>
@@ -56,9 +69,17 @@ function mostrarCatalogo(productos) {
       <p>Talle: ${producto.talle} - Activo</p>
       <button onclick="editarProducto(${producto.id})">✏️ Editar</button>
       <button onclick="eliminarProducto(${producto.id})">🗑️ Eliminar</button>
+      <img src="${imgSrc}" alt="${prod.nombre}" />
+      <h3>${prod.nombre}</h3>
+      <p>$${prod.precio}</p>
     `;
+    card.onclick = () => mostrarDetalle(prod);
     catalogo.appendChild(card);
   });
+}
+
+// resto de tu código de detalle y carrito…
+
 }
 
 
@@ -131,5 +152,4 @@ document.getElementById("formulario-pedido").onsubmit = (e) => {
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
-
 
