@@ -1,113 +1,106 @@
-const API_URL  = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
-const API_BASE = API_URL.replace('/productos','');
+const API_URL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
+const API_BASE = API_URL.replace('/productos', '');
 
-const lista      = document.getElementById('lista-productos');
-const mensaje    = document.getElementById('mensaje');
-const btnNuevo   = document.getElementById('btn-nuevo');
-const modalForm  = document.getElementById('modal-form');
-const modalClose = document.getElementById('modal-close');
-const form       = document.getElementById('form-producto');
-const get        = id => document.getElementById(id);
-const val        = id => get(id).value;
+const form = document.getElementById('form-producto');
+const lista = document.getElementById('lista-productos');
+const mensaje = document.getElementById('mensaje');
 
-btnNuevo.addEventListener('click', () => abrirModal());
-modalClose.addEventListener('click', cerrarModal);
-
-form.onsubmit = async e => {
+form.onsubmit = async (e) => {
   e.preventDefault();
-  const fd = new FormData();
-  ['nombre','precio','talle','descripcion']
-    .forEach(f => fd.append(f, val(f)));
-  fd.append('activo',  get('activo').checked);
-  fd.append('oferta',  get('oferta').checked);
-  for (let file of get('imagenes').files) fd.append('imagenes', file);
 
-  const id     = val('producto-id');
+  const formData = new FormData(form);
+  formData.append('activo', document.getElementById('activo').checked);
+  formData.append('oferta', document.getElementById('oferta').checked);
+
+  const imagenesInput = document.getElementById('imagenes');
+  for (let i = 0; i < imagenesInput.files.length; i++) {
+    formData.append('imagenes', imagenesInput.files[i]);
+  }
+
+  const id = document.getElementById('producto-id').value;
   const method = id ? 'PUT' : 'POST';
-  const url    = id ? `${API_URL}/${id}` : API_URL;
+  const url = id ? `${API_URL}/${id}` : API_URL;
 
   try {
-    let res = await fetch(url, { method, body: fd });
-    if (!res.ok) throw new Error();
-    mostrarMsg('✅ Guardado', true);
-    cerrarModal();
+    const res = await fetch(url, { method, body: formData });
+    if (!res.ok) throw new Error("No se pudo guardar el producto");
+
+    mostrarMensaje("✅ Producto guardado con éxito", true);
+    form.reset();
+    document.getElementById('producto-id').value = '';
     cargarProductos();
-  } catch {
-    mostrarMsg('❌ Error', false);
+  } catch (err) {
+    console.error(err);
+    mostrarMensaje("❌ Error al guardar el producto", false);
   }
 };
 
+
 async function cargarProductos() {
-  lista.innerHTML = '';
   try {
     const res = await fetch(API_URL);
-    const data = await res.json();
-    data.forEach(p => {
-      const card = document.createElement('div');
-      card.className  = 'card';
-      card.dataset.id = p.id;
+    const contentType = res.headers.get("content-type");
 
-      card.innerHTML = `
-        <h3>${p.nombre} – $${p.precio}</h3>
+    if (!res.ok || !contentType.includes("application/json")) {
+      throw new Error("La respuesta no es un JSON válido.");
+    }
+
+    const productos = await res.json();
+
+    lista.innerHTML = productos.map(p => `
+      <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+        <h3>${p.nombre} - $${p.precio}</h3>
         <p>${p.descripcion}</p>
-        <p>Talle: ${p.talle} – ${p.activo?'Activo':'Inactivo'} ${p.oferta? '(Oferta)':''}</p>
-      `;
+        <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+        ${p.imagenes.map(img => `<img src="${API_BASE}${img}" width="100" style="margin-right: 5px"/>`).join('')}
+        ${p.imagenes.map(img => `<img src="https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev${img}" width="100"/>`).join('')}
 
-      // Imágenes
-      (p.imagenes||[]).forEach(srcRel => {
-        const src = srcRel.startsWith('/uploads')
-          ? API_BASE + srcRel
-          : srcRel;
-        const img = document.createElement('img');
-        img.src = src; img.width = 80; img.style.margin='0 5px';
-        card.appendChild(img);
-      });
-
-      const be = document.createElement('button');
-      be.textContent = '✏️ Editar';
-      be.onclick     = () => abrirModal(p);
-      card.appendChild(be);
-
-      const bd = document.createElement('button');
-      bd.textContent = '🗑️ Eliminar';
-      bd.onclick     = async () => {
-        await fetch(`${API_URL}/${p.id}`, { method:'DELETE' });
-        card.remove();
-      };
-      card.appendChild(bd);
-
-      lista.appendChild(card);
-    });
-  } catch {
-    mostrarMsg('❌ No se cargaron', false);
+        <br/>
+        <button onclick="editar(${p.id})">✏️ Editar</button>
+        <button onclick="eliminar(${p.id})">🗑️ Eliminar</button>
+      </div>
+    `).join('');
+  } catch (err) {
+    console.error("Error al cargar productos:", err);
+    mostrarMensaje("❌ No se pudieron cargar los productos", false);
   }
 }
 
-function abrirModal(p = {}) {
-  form.reset();
-  get('producto-id').value  = p.id || '';
-  get('nombre').value       = p.nombre || '';
-  get('precio').value       = p.precio || '';
-  get('talle').value        = p.talle || '';
-  get('descripcion').value  = p.descripcion || '';
-  get('activo').checked     = !!p.activo;
-  get('oferta').checked     = !!p.oferta;
-  modalForm.classList.add('active');
+function editar(id) {
+  fetch(`${API_URL}/${id}`)
+    .then(res => res.json())
+    .then(p => {
+      document.getElementById('producto-id').value = p.id;
+      document.getElementById('nombre').value = p.nombre;
+      document.getElementById('precio').value = p.precio;
+      document.getElementById('talle').value = p.talle;
+      document.getElementById('descripcion').value = p.descripcion;
+      document.getElementById('activo').checked = p.activo;
+      document.getElementById('oferta').checked = p.oferta;
+    });
 }
 
-function cerrarModal() {
-  modalForm.classList.remove('active');
+function eliminar(id) {
+  fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+    .then(() => {
+      mostrarMensaje("🗑️ Producto eliminado", true);
+      cargarProductos();
+    })
+    .catch(() => mostrarMensaje("❌ Error al eliminar producto", false));
 }
 
-function mostrarMsg(txt, ok) {
-  mensaje.textContent = txt;
-  mensaje.className   = ok ? 'alert ok' : 'alert error';
+function mostrarMensaje(texto, exito = true) {
+  mensaje.textContent = texto;
   mensaje.style.display = 'block';
-  setTimeout(() => mensaje.style.display = 'none', 3000);
+  mensaje.style.backgroundColor = exito ? '#d4edda' : '#f8d7da';
+  mensaje.style.color = exito ? '#155724' : '#721c24';
+  mensaje.style.border = exito ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+
+  setTimeout(() => {
+    mensaje.style.display = 'none';
+  }, 3000);
 }
 
 cargarProductos();
-
-
 
 
