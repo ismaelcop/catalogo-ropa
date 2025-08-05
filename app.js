@@ -25,7 +25,7 @@ fetch(backendURL)
   .then(res => res.json())
   .then(data => {
     productos = data;
-    mostrarCatalogo();
+    mostrarCatalogo(productos);
   })
   .catch(error => {
     console.error("Error al cargar productos:", error);
@@ -126,5 +126,6 @@ document.getElementById("formulario-pedido").onsubmit = (e) => {
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
+
 
 
