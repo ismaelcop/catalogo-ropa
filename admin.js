@@ -49,13 +49,11 @@ async function cargarProductos() {
     const res  = await fetch(API_URL);
     if (!res.ok) throw new Error();
     const data = await res.json();
-    console.log("📦 Productos recibidos del backend:", productos); // ← AGREGAR ESTA LÍNEA
-
-    data.forEach(p => {
-      // CREO LA CARD Y LE ASIGNO data-id
-      const card = document.createElement('div');
-      card.className  = 'card';
-      card.dataset.id = p.id;  // ← aquí guardo el ID
+console.log("🧪 Datos recibidos:", data);  // ← Verifica estructura
+data.forEach(p => {
+  const card = document.createElement('div');
+  card.className  = 'card';
+  card.dataset.id = p.id || p._id;  // ← aquí guardo el ID
 
       // Contenido básico
       card.innerHTML = `
@@ -153,5 +151,6 @@ function mostrarMsgCard(card, txt, ok) {
 
 // Inicializa la lista
 cargarProductos();
+
 
 
