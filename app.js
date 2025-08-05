@@ -24,9 +24,11 @@ const backendURL = `${backendBase}/productos`;
 fetch(backendURL)
   .then(res => res.json())
   .then(data => {
-    productos = data;
-    mostrarCatalogo(productos);
-  })
+  console.log("Respuesta del backend:", data);
+  productos = data;
+  mostrarCatalogo(productos);
+})
+
   .catch(error => {
     console.error("Error al cargar productos:", error);
     alert("No se pudieron cargar los productos.");
@@ -126,6 +128,7 @@ document.getElementById("formulario-pedido").onsubmit = (e) => {
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
+
 
 
 
