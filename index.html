@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Tienda Online</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
@@ -11,23 +11,20 @@
     <h1>Tienda de Ropa</h1>
     <button id="ver-carrito">🛒 Ver Carrito</button>
   </header>
-
   <main id="catalogo"></main>
 
-  <!-- Modal Detalle Producto -->
+  <!-- Modal Detalle -->
   <div id="modal-detalle" class="modal hidden">
     <div class="modal-content">
       <span class="close">&times;</span>
       <div class="galeria-imagenes">
-        <div class="image-container">
-          <img id="img-principal" src="" alt="Producto" class="product-image"/>
-        </div>
+        <img id="img-principal" class="product-image"/>
         <div id="miniaturas"></div>
       </div>
       <h2 id="modal-nombre"></h2>
       <p id="modal-descripcion"></p>
-      <p><strong>Precio:</strong> $<span id="modal-precio"></span></p>
-      <p><strong>Talle:</strong> <span id="modal-talle"></span></p>
+      <p>Precio: $<span id="modal-precio"></span></p>
+      <p>Talle: <span id="modal-talle"></span></p>
       <button id="agregar-carrito">Agregar al carrito</button>
     </div>
   </div>
@@ -38,19 +35,18 @@
       <span class="close-carrito">&times;</span>
       <h2>Carrito</h2>
       <div id="carrito-items"></div>
-      <p><strong>Total: $<span id="total-carrito">0</span></strong></p>
+      <p>Total: $<span id="total-carrito">0</span></p>
       <form id="formulario-pedido">
-        <label>Nombre: <input type="text" name="nombre" required></label>
+        <label>Nombre: <input name="nombre" required></label>
         <label>Dirección:
-  <select name="direccion" required>
-    <option value="">Seleccionar</option>
-    <option value="Lugar 1">Lugar 1</option>
-    <option value="Lugar 2">Lugar 2</option>
-    <option value="Lugar 3">Lugar 3</option>
-  </select>
-</label>
-
-        <label>Fecha de entrega: <input type="date" name="fecha" required></label>
+          <select name="direccion" required>
+            <option value="">Seleccione</option>
+            <option value="Lugar 1">Lugar 1</option>
+            <option value="Lugar 2">Lugar 2</option>
+            <option value="Lugar 3">Lugar 3</option>
+          </select>
+        </label>
+        <label>Fecha entrega: <input type="date" name="fecha" required></label>
         <button type="submit">Finalizar compra</button>
       </form>
     </div>
