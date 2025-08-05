@@ -8,16 +8,21 @@
 </head>
 <body>
   <h1>Administrar Productos</h1>
-<div id="mensaje" style="display:none; padding: 10px; margin: 10px 0; border-radius: 5px;"></div>
+  <div id="mensaje" style="display:none; padding: 10px; margin: 10px 0; border-radius: 5px;"></div>
+
   <form id="form-producto" enctype="multipart/form-data">
-    <input type="hidden" id="producto-id">
-    <input type="text" id="nombre" placeholder="Nombre" required />
-    <input type="number" id="precio" placeholder="Precio" required />
-    <input type="text" id="talle" placeholder="Talle" required />
-    <textarea id="descripcion" placeholder="Descripción"></textarea>
-    <input type="file" id="imagenes" multiple />
-    <label><input type="checkbox" id="activo"> Activo</label>
-    <label><input type="checkbox" id="oferta"> Oferta</label>
+    <input type="hidden" id="producto-id" name="id">
+
+    <input type="text" id="nombre" name="nombre" placeholder="Nombre" required />
+    <input type="number" id="precio" name="precio" placeholder="Precio" required />
+    <input type="text" id="talle" name="talle" placeholder="Talle" required />
+    <textarea id="descripcion" name="descripcion" placeholder="Descripción"></textarea>
+
+    <input type="file" id="imagenes" name="imagenes" multiple />
+
+    <label><input type="checkbox" id="activo" name="activo"> Activo</label>
+    <label><input type="checkbox" id="oferta" name="oferta"> Oferta</label>
+
     <button type="submit">Guardar</button>
   </form>
 
