@@ -8,22 +8,37 @@ const modalForm  = document.getElementById('modal-form');
 const modalClose = document.getElementById('modal-close');
 const form       = document.getElementById('form-producto');
 
+// Helpers para obtener valores de inputs
+const get = id => document.getElementById(id);
+const val = id => get(id).value;
+
 // Abrir modal
 btnNuevo.addEventListener('click', () => abrirModal());
 modalClose.addEventListener('click', cerrarModal);
 
-// Submit (crear o editar)
+// Crear o editar
 form.onsubmit = async (e) => {
   e.preventDefault();
   const fd = new FormData();
-  ['nombre','precio','talle','descripcion'].forEach(f => fd.append(f, form[f].value));
-  fd.append('activo', form.activo.checked);
-  fd.append('oferta', form.oferta.checked);
-  for (const file of form.imagenes.files) fd.append('imagenes', file);
-  const id = form.id.value;
+
+  // Ahora uso get(id) para seguridad
+  fd.append('nombre',      val('nombre'));
+  fd.append('precio',      val('precio'));
+  fd.append('talle',       val('talle'));
+  fd.append('descripcion', val('descripcion'));
+  fd.append('activo',      get('activo').checked);
+  fd.append('oferta',      get('oferta').checked);
+
+  const files = get('imagenes').files;
+  for (const f of files) fd.append('imagenes', f);
+
+  const id = val('producto-id');
+  if (id) {
+    fd.append('id', id);
+  }
+
   const method = id ? 'PUT' : 'POST';
   const url    = id ? `${API_URL}/${id}` : API_URL;
-  if (id) fd.append('id', id);
 
   try {
     const res = await fetch(url, { method, body: fd });
@@ -36,43 +51,52 @@ form.onsubmit = async (e) => {
   }
 };
 
-// Carga listado
+// Carga y renderiza
 async function cargarProductos() {
+  lista.innerHTML = '';
   try {
     const res = await fetch(API_URL);
     const data = await res.json();
-    lista.innerHTML = '';
+
     data.forEach(p => {
       const card = document.createElement('div');
-      card.style = 'border:1px solid #ccc; padding:10px; margin:10px 0';
-
+      card.className = 'card';
+      card.dataset.id = p.id;
       card.innerHTML = `
         <h3>${p.nombre} - $${p.precio}</h3>
         <p>${p.descripcion}</p>
-        <p>Talle: ${p.talle} - ${p.activo?'Activo':'Inactivo'} ${p.oferta? '(Oferta)':''}</p>
+        <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
       `;
-      // imágenes
-      (Array.isArray(p.imagenes)? p.imagenes : []).forEach(img => {
-        const url = img.startsWith('/uploads') ? API_BASE + img : img;
+
+      // Imágenes
+      const imgs = Array.isArray(p.imagenes) ? p.imagenes : [];
+      imgs.forEach(img => {
+        const src = img.startsWith('/uploads') ? API_BASE + img : img;
         const i = document.createElement('img');
-        i.src = url; i.width = 80; i.style.margin = '0 5px';
+        i.src = src; i.width = 80; i.style.margin = '0 5px';
         card.appendChild(i);
       });
 
-      // editar
+      // Editar
       const be = document.createElement('button');
       be.textContent = '✏️ Editar';
       be.onclick = () => abrirModal(p);
       card.appendChild(be);
 
-      // eliminar
+      // Eliminar
       const bd = document.createElement('button');
       bd.textContent = '🗑️ Eliminar';
       bd.style.marginLeft = '5px';
       bd.onclick = async () => {
-        await fetch(`${API_URL}/${p.id}`, { method: 'DELETE' });
-        mostrarMsg('🗑️ Producto eliminado', true);
-        cargarProductos();
+        try {
+          const res = await fetch(`${API_URL}/${p.id}`, { method: 'DELETE' });
+          if (!res.ok) throw new Error();
+          // Remover solo este card
+          card.remove();
+          mostrarMsgCard(card, '🗑️ Eliminado', true);
+        } catch {
+          mostrarMsgCard(card, '❌ No se pudo eliminar', false);
+        }
       };
       card.appendChild(bd);
 
@@ -83,28 +107,26 @@ async function cargarProductos() {
   }
 }
 
-// Abrir modal, cargando datos si recibe producto
+// Modal
 function abrirModal(p = null) {
   form.reset();
-  form.id.value = '';
+  get('producto-id').value = '';
   if (p) {
-    form.id.value           = p.id;
-    form.nombre.value       = p.nombre;
-    form.precio.value       = p.precio;
-    form.talle.value        = p.talle;
-    form.descripcion.value  = p.descripcion;
-    form.activo.checked     = p.activo;
-    form.oferta.checked     = p.oferta;
+    get('producto-id').value  = p.id;
+    get('nombre').value       = p.nombre;
+    get('precio').value       = p.precio;
+    get('talle').value        = p.talle;
+    get('descripcion').value  = p.descripcion;
+    get('activo').checked     = p.activo;
+    get('oferta').checked     = p.oferta;
   }
   modalForm.classList.add('active');
 }
-
-// Cerrar
 function cerrarModal() {
   modalForm.classList.remove('active');
 }
 
-// Mensaje
+// Mensaje global
 function mostrarMsg(txt, ok) {
   mensaje.textContent = txt;
   mensaje.style.display = 'block';
@@ -112,6 +134,22 @@ function mostrarMsg(txt, ok) {
   mensaje.style.color           = ok ? '#155724' : '#721c24';
   mensaje.style.border          = ok ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
   setTimeout(() => mensaje.style.display = 'none', 3000);
+}
+
+// Mensaje junto a la card
+function mostrarMsgCard(card, txt, ok) {
+  // elimina mensaje previo
+  const prev = card.querySelector('.msg-card');
+  if (prev) prev.remove();
+
+  const span = document.createElement('span');
+  span.className = 'msg-card';
+  span.textContent = txt;
+  span.style.marginLeft = '10px';
+  span.style.color = ok ? '#155724' : '#721c24';
+  card.appendChild(span);
+
+  setTimeout(() => span.remove(), 3000);
 }
 
 // Init
