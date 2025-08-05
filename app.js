@@ -1,143 +1,98 @@
-// URL base de tu backend en Replit
-const backendBase = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
-const backendURL  = `${backendBase}/productos`;
+const API = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
 
-// Estado global
-let productos = [];
-let carrito = [];
-let productoActual = null;
+const catalogo      = document.getElementById('catalogo');
+const mdDetalle     = document.getElementById('modal-detalle');
+const mdCarrito     = document.getElementById('modal-carrito');
+const imgPrin       = document.getElementById('img-principal');
+const miniaturas    = document.getElementById('miniaturas');
+const nombreEl      = document.getElementById('modal-nombre');
+const descEl        = document.getElementById('modal-descripcion');
+const precioEl      = document.getElementById('modal-precio');
+const talleEl       = document.getElementById('modal-talle');
+const btnAgregar    = document.getElementById('agregar-carrito');
 
-// Elementos del DOM
-const catalogo      = document.getElementById("catalogo");
-const modalDetalle  = document.getElementById("modal-detalle");
-const modalNombre   = document.getElementById("modal-nombre");
-const modalDesc     = document.getElementById("modal-descripcion");
-const modalPrecio   = document.getElementById("modal-precio");
-const modalTalle    = document.getElementById("modal-talle");
-const imgPrincipal  = document.getElementById("img-principal");
-const miniaturas    = document.getElementById("miniaturas");
-const btnAgregar    = document.getElementById("agregar-carrito");
-const modalCarrito  = document.getElementById("modal-carrito");
-const carritoItems  = document.getElementById("carrito-items");
-const totalCarrito  = document.getElementById("total-carrito");
+let productos = [], carrito = [], current = null;
 
-// 1) Carga inicial de productos
-fetch(backendURL)
-  .then(res => res.json())
-  .then(data => {
-    productos = data;
-    mostrarCatalogo(productos);
-  })
-  .catch(err => {
-    console.error("Error al cargar productos:", err);
-    catalogo.innerHTML = "<p>No se pudieron cargar los productos.</p>";
-  });
+// 1) Carga inicial
+fetch(API)
+  .then(r => r.json())
+  .then(d => { productos = d; renderCatalogo(); })
+  .catch(_ => catalogo.innerHTML = '<p>Error cargando catálogo</p>');
 
-// 2) Función para renderizar el catálogo
-function mostrarCatalogo(items) {
-  catalogo.innerHTML = "";
-  items.forEach(prod => {
-    // Validar imágenes
-    const imgs = Array.isArray(prod.imagenes) ? prod.imagenes : [];
-    const src = imgs.length
-      ? (imgs[0].startsWith('/uploads') ? backendBase + imgs[0] : imgs[0])
-      : 'https://via.placeholder.com/150';
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <img src="${src}" alt="${prod.nombre}" />
-      <h3>${prod.nombre}</h3>
-      <p>$${prod.precio}</p>
-    `;
-    card.onclick = () => mostrarDetalle(prod);
+function renderCatalogo() {
+  catalogo.innerHTML = '';
+  productos.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const img = (p.imagenes&&p.imagenes[0])
+      ? `<img src="${API.replace('/productos','')}${p.imagenes[0]}"/>`
+      : `<img src="https://via.placeholder.com/150"/>`;
+    card.innerHTML = `${img}<h3>${p.nombre}</h3><p>$${p.precio}</p>`;
+    card.onclick = () => showDetalle(p);
     catalogo.appendChild(card);
   });
 }
 
-// 3) Mostrar modal de detalle
-function mostrarDetalle(prod) {
-  productoActual = prod;
-  modalDetalle.classList.remove("hidden");
-  modalNombre.textContent = prod.nombre;
-  modalDesc.textContent  = prod.descripcion;
-  modalPrecio.textContent= prod.precio;
-  modalTalle.textContent = prod.talle;
+function showDetalle(p) {
+  current = p;
+  mdDetalle.classList.remove('hidden');
+  nombreEl.textContent = p.nombre;
+  descEl.textContent   = p.descripcion;
+  precioEl.textContent = p.precio;
+  talleEl.textContent  = p.talle;
 
-  // Imagen principal y miniaturas
-  const imgs = Array.isArray(prod.imagenes) ? prod.imagenes : [];
-  const mainSrc = imgs.length
-    ? (imgs[0].startsWith('/uploads') ? backendBase + imgs[0] : imgs[0])
+  imgPrin.src = p.imagenes&&p.imagenes[0]
+    ? `${API.replace('/productos','')}${p.imagenes[0]}`
     : 'https://via.placeholder.com/300';
-  imgPrincipal.src = mainSrc;
 
-  miniaturas.innerHTML = "";
-  imgs.forEach((img, i) => {
-    const url = img.startsWith('/uploads') ? backendBase + img : img;
-    const thumb = document.createElement("img");
-    thumb.src = url;
-    thumb.classList.toggle("selected", i === 0);
-    thumb.onclick = () => {
-      imgPrincipal.src = url;
-      miniaturas.querySelectorAll("img").forEach(m => m.classList.remove("selected"));
-      thumb.classList.add("selected");
-    };
+  miniaturas.innerHTML = '';
+  (p.imagenes||[]).forEach(u => {
+    const thumb = document.createElement('img');
+    thumb.src = `${API.replace('/productos','')}${u}`;
+    thumb.onclick = () => imgPrin.src = thumb.src;
     miniaturas.appendChild(thumb);
   });
 }
 
-// 4) Cerrar modal detalle
-document.querySelector("#modal-detalle .close").onclick = () => {
-  modalDetalle.classList.add("hidden");
-};
+document.querySelector('#modal-detalle .close').onclick = () =>
+  mdDetalle.classList.add('hidden');
 
-// 5) Agregar al carrito
 btnAgregar.onclick = () => {
-  carrito.push(productoActual);
-  alert("Producto agregado al carrito");
-  modalDetalle.classList.add("hidden");
+  carrito.push(current);
+  alert('Agregado al carrito');
+  mdDetalle.classList.add('hidden');
 };
 
-// 6) Ver carrito
-document.getElementById("ver-carrito").onclick = () => {
-  mostrarCarrito();
-  modalCarrito.classList.remove("hidden");
+document.getElementById('ver-carrito').onclick = () => {
+  mdCarrito.classList.remove('hidden');
+  renderCarrito();
 };
 
-// 7) Cerrar carrito
-document.querySelector(".close-carrito").onclick = () => {
-  modalCarrito.classList.add("hidden");
-};
+document.querySelector('.close-carrito').onclick = () =>
+  mdCarrito.classList.add('hidden');
 
-// 8) Renderizar carrito
-function mostrarCarrito() {
-  carritoItems.innerHTML = "";
+function renderCarrito() {
+  const cont = document.getElementById('carrito-items');
+  cont.innerHTML = '';
   let total = 0;
   carrito.forEach(item => {
-    const div = document.createElement("div");
-    div.textContent = `${item.nombre} - $${item.precio}`;
-    carritoItems.appendChild(div);
+    cont.innerHTML += `<div>${item.nombre} – $${item.precio}</div>`;
     total += item.precio;
   });
-  totalCarrito.textContent = total;
+  document.getElementById('total-carrito').textContent = total;
 }
 
-// 9) Validar y enviar pedido
-document.getElementById("formulario-pedido").onsubmit = (e) => {
+document.getElementById('formulario-pedido').onsubmit = e => {
   e.preventDefault();
-  const fecha = new Date(e.target.fecha.value);
-  const dia   = fecha.getDay(); // 2=Martes,4=Jueves
-
-  if (dia !== 2 && dia !== 4) {
-    alert("Solo martes o jueves permitidos.");
+  const dia = new Date(e.target.fecha.value).getDay();
+  if (![2,4].includes(dia)) {
+    alert('Solo martes o jueves');
     return;
   }
-  alert("¡Gracias por tu compra!");
+  alert('¡Compra realizada!');
   carrito = [];
-  modalCarrito.classList.add("hidden");
+  mdCarrito.classList.add('hidden');
 };
-
-
 
 
 
