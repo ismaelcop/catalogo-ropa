@@ -5,28 +5,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Administrador de Productos</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Modal overlay */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    .modal.active { display: flex; }
+
+    /* Modal content */
+    .modal-content {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+    .modal-content .close {
+      position: absolute;
+      top: 0.5rem; right: 0.5rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    /* Botón Nuevo */
+    #btn-nuevo {
+      margin-bottom: 1rem;
+      padding: 0.5rem 1rem;
+    }
+  </style>
 </head>
 <body>
   <h1>Administrar Productos</h1>
-  <div id="mensaje" style="display:none; padding: 10px; margin: 10px 0; border-radius: 5px;"></div>
-
-  <form id="form-producto" enctype="multipart/form-data">
-    <input type="hidden" id="producto-id" name="id">
-
-    <input type="text" id="nombre" name="nombre" placeholder="Nombre" required />
-    <input type="number" id="precio" name="precio" placeholder="Precio" required />
-    <input type="text" id="talle" name="talle" placeholder="Talle" required />
-    <textarea id="descripcion" name="descripcion" placeholder="Descripción"></textarea>
-
-    <input type="file" id="imagenes" name="imagenes" multiple />
-
-    <label><input type="checkbox" id="activo" name="activo"> Activo</label>
-    <label><input type="checkbox" id="oferta" name="oferta"> Oferta</label>
-
-    <button type="submit">Guardar</button>
-  </form>
-
+  <button id="btn-nuevo">➕ Nuevo producto</button>
+  <div id="mensaje" style="display:none; padding:10px; margin-bottom:10px; border-radius:5px;"></div>
   <div id="lista-productos"></div>
+
+  <!-- Modal del formulario -->
+  <div id="modal-form" class="modal">
+    <div class="modal-content">
+      <span id="modal-close" class="close">&times;</span>
+      <form id="form-producto" enctype="multipart/form-data">
+        <input type="hidden" id="producto-id" name="id">
+
+        <label>Nombre</label>
+        <input type="text" id="nombre" name="nombre" required />
+
+        <label>Precio</label>
+        <input type="number" id="precio" name="precio" required />
+
+        <label>Talle</label>
+        <input type="text" id="talle" name="talle" required />
+
+        <label>Descripción</label>
+        <textarea id="descripcion" name="descripcion"></textarea>
+
+        <label>Imágenes</label>
+        <input type="file" id="imagenes" name="imagenes" multiple />
+
+        <label><input type="checkbox" id="activo" name="activo"> Activo</label>
+        <label><input type="checkbox" id="oferta" name="oferta"> Oferta</label>
+
+        <button type="submit">Guardar</button>
+      </form>
+    </div>
+  </div>
 
   <script src="admin.js"></script>
 </body>
