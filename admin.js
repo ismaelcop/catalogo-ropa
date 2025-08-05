@@ -19,20 +19,10 @@ modalClose.addEventListener('click', cerrarModal);
 form.onsubmit = async (e) => {
   e.preventDefault();
   const fd = new FormData();
-
-  // Campos del formulario
-  fd.append('nombre',      val('nombre'));
-  fd.append('precio',      val('precio'));
-  fd.append('talle',       val('talle'));
-  fd.append('descripcion', val('descripcion'));
-  fd.append('activo',      get('activo').checked);
-  fd.append('oferta',      get('oferta').checked);
-
-  // Archivos
-  for (const file of get('imagenes').files) {
-    fd.append('imagenes', file);
-  }
-
+  ['nombre','precio','talle','descripcion'].forEach(f => fd.append(f, val(f)));
+  fd.append('activo', get('activo').checked);
+  fd.append('oferta', get('oferta').checked);
+  for (const file of get('imagenes').files) fd.append('imagenes', file);
   const id = val('producto-id');
   if (id) fd.append('id', id);
 
@@ -58,9 +48,11 @@ async function cargarProductos() {
     const data = await res.json();
 
     data.forEach(p => {
+      // DEBUG: ver p e p.id
+      console.log('Renderizando producto:', p, 'id:', p.id);
+
       const card = document.createElement('div');
-      card.className   = 'card';
-      card.dataset.id  = p.id;  // Fija el ID en el atributo data-id
+      card.className = 'card';
 
       card.innerHTML = `
         <h3>${p.nombre} - $${p.precio}</h3>
@@ -89,12 +81,12 @@ async function cargarProductos() {
       bd.textContent = '🗑️ Eliminar';
       bd.style.marginLeft = '5px';
       bd.addEventListener('click', async () => {
-        const idToDelete = card.dataset.id;
-        console.log('Intentando eliminar ID:', idToDelete);
+        // Aqui uso p.id directamente
+        console.log('Intentando eliminar producto p:', p, 'p.id:', p.id);
         try {
-          const resDel = await fetch(`${API_URL}/${idToDelete}`, { method: 'DELETE' });
+          const resDel = await fetch(`${API_URL}/${p.id}`, { method: 'DELETE' });
           if (!resDel.ok) throw new Error(`Status ${resDel.status}`);
-          card.remove();  // quita el card de la UI
+          card.remove();
           mostrarMsgCard(card, '🗑️ Producto eliminado', true);
         } catch (err) {
           console.error('Error eliminando:', err);
@@ -116,12 +108,12 @@ function abrirModal(p = null) {
   get('producto-id').value = '';
   if (p) {
     get('producto-id').value  = p.id;
-    get('nombre').value       = p.nombre;
-    get('precio').value       = p.precio;
-    get('talle').value        = p.talle;
-    get('descripcion').value  = p.descripcion;
-    get('activo').checked     = p.activo;
-    get('oferta').checked     = p.oferta;
+    get('nombre').value       = p.nombre || '';
+    get('precio').value       = p.precio || '';
+    get('talle').value        = p.talle || '';
+    get('descripcion').value  = p.descripcion || '';
+    get('activo').checked     = !!p.activo;
+    get('oferta').checked     = !!p.oferta;
   }
   modalForm.classList.add('active');
 }
@@ -156,6 +148,5 @@ function mostrarMsgCard(card, txt, ok) {
 
 // Inicializar
 cargarProductos();
-
 
 
