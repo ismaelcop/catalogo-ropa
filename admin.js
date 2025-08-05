@@ -35,11 +35,10 @@ form.onsubmit = async (e) => {
   }
 };
 
-
 async function cargarProductos() {
   try {
     const res = await fetch(API_URL);
-    const contentType = res.headers.get("content-type");
+    const contentType = res.headers.get("content-type") || "";
 
     if (!res.ok || !contentType.includes("application/json")) {
       throw new Error("La respuesta no es un JSON válido.");
@@ -47,18 +46,27 @@ async function cargarProductos() {
 
     const productos = await res.json();
 
-    lista.innerHTML = productos.map(p => `
-      <div style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
+    lista.innerHTML = productos.map(p => {
+      // evita undefined si no hay imágenes
+      const imgs = Array.isArray(p.imagenes) ? p.imagenes : [];
+      const htmlImgs = imgs.map(img => {
+        const src = img.startsWith('/uploads') 
+          ? API_BASE + img 
+          : img;
+        return `<img src="${src}" width="100" style="margin-right:5px" />`;
+      }).join('');
+
+      return `
+      <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
         <h3>${p.nombre} - $${p.precio}</h3>
         <p>${p.descripcion}</p>
         <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
-        ${p.imagenes.map(img => `<img src="https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev${img}" width="100"/>`).join('')}
-
+        ${htmlImgs}
         <br/>
         <button onclick="editar(${p.id})">✏️ Editar</button>
         <button onclick="eliminar(${p.id})">🗑️ Eliminar</button>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   } catch (err) {
     console.error("Error al cargar productos:", err);
     mostrarMensaje("❌ No se pudieron cargar los productos", false);
@@ -95,9 +103,7 @@ function mostrarMensaje(texto, exito = true) {
   mensaje.style.color = exito ? '#155724' : '#721c24';
   mensaje.style.border = exito ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
 
-  setTimeout(() => {
-    mensaje.style.display = 'none';
-  }, 3000);
+  setTimeout(() => mensaje.style.display = 'none', 3000);
 }
 
 cargarProductos();
