@@ -9,16 +9,15 @@ const modalForm  = document.getElementById('modal-form');
 const modalClose = document.getElementById('modal-close');
 const form       = document.getElementById('form-producto');
 
-// Helpers
 const get = id => document.getElementById(id);
 const val = id => get(id).value;
 
-// Abrir y cerrar modal
+// Abrir/cerrar modal
 btnNuevo.addEventListener('click', () => abrirModal());
 modalClose.addEventListener('click', cerrarModal);
 
-// Submit: crear o editar
-form.onsubmit = async e => {
+// Crear o editar
+form.onsubmit = async (e) => {
   e.preventDefault();
   const fd = new FormData();
   ['nombre','precio','talle','descripcion'].forEach(f => fd.append(f, val(f)));
@@ -43,7 +42,7 @@ form.onsubmit = async e => {
   }
 };
 
-// Carga y pinta la lista
+// Carga y renderiza
 async function cargarProductos() {
   lista.innerHTML = '';
   try {
@@ -52,41 +51,40 @@ async function cargarProductos() {
     const data = await res.json();
 
     data.forEach(p => {
-      // DEBUG: verifica p.id
-      console.log('Renderizando p.id =', p.id, 'p =', p);
-
+      // CREO LA CARD Y LE ASIGNO data-id
       const card = document.createElement('div');
       card.className  = 'card';
-      card.dataset.id = p.id;
+      card.dataset.id = p.id;  // ← aquí guardo el ID
 
+      // Contenido básico
       card.innerHTML = `
         <h3>${p.nombre} - $${p.precio}</h3>
         <p>${p.descripcion}</p>
-        <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+        <p>Talle: ${p.talle} - ${p.activo?'Activo':'Inactivo'} ${p.oferta? '(Oferta)':''}</p>
       `;
 
       // Imágenes
-      (Array.isArray(p.imagenes) ? p.imagenes : []).forEach(img => {
+      (Array.isArray(p.imagenes)? p.imagenes : []).forEach(img => {
         const src = img.startsWith('/uploads') ? API_BASE + img : img;
-        const imgEl = document.createElement('img');
-        imgEl.src = src;
-        imgEl.width = 80;
-        imgEl.style.margin = '0 5px';
-        card.appendChild(imgEl);
+        const i   = document.createElement('img');
+        i.src     = src;
+        i.width   = 80;
+        i.style.margin = '0 5px';
+        card.appendChild(i);
       });
 
       // Botón Editar
       const be = document.createElement('button');
       be.textContent = '✏️ Editar';
-      be.onclick = () => abrirModal(p);
+      be.addEventListener('click', () => abrirModal(p));
       card.appendChild(be);
 
-      // Botón Eliminar
+      // Botón Eliminar (usa dataset.id)
       const bd = document.createElement('button');
       bd.textContent = '🗑️ Eliminar';
       bd.style.marginLeft = '5px';
-      bd.onclick = async () => {
-        const idToDelete = card.dataset.id;
+      bd.addEventListener('click', async () => {
+        const idToDelete = card.dataset.id;                    // ← tomo el ID de data-id
         console.log('ID a eliminar:', idToDelete);
         try {
           const resDel = await fetch(`${API_URL}/${idToDelete}`, { method: 'DELETE' });
@@ -97,18 +95,18 @@ async function cargarProductos() {
           console.error('Error eliminando:', err);
           mostrarMsgCard(card, '❌ No se pudo eliminar', false);
         }
-      };
+      });
       card.appendChild(bd);
 
       lista.appendChild(card);
     });
   } catch (err) {
     console.error(err);
-    mostrarMsg('❌ No se pudieron cargar los productos', false);
+    mostrarMsg('❌ No se pudo cargar la lista', false);
   }
 }
 
-// Abre modal; si recibe p, precarga para editar
+// Abre modal y pre-carga datos
 function abrirModal(p = null) {
   form.reset();
   get('producto-id').value = '';
@@ -129,7 +127,7 @@ function cerrarModal() {
   modalForm.classList.remove('active');
 }
 
-// Notificación global
+// Mensaje global
 function mostrarMsg(txt, ok) {
   mensaje.textContent = txt;
   mensaje.style.display = 'block';
@@ -139,7 +137,7 @@ function mostrarMsg(txt, ok) {
   setTimeout(() => mensaje.style.display = 'none', 3000);
 }
 
-// Notificación junto al card
+// Mensaje junto a la card
 function mostrarMsgCard(card, txt, ok) {
   const prev = card.querySelector('.msg-card');
   if (prev) prev.remove();
@@ -152,7 +150,7 @@ function mostrarMsgCard(card, txt, ok) {
   setTimeout(() => span.remove(), 3000);
 }
 
-// Inicial
+// Inicializa la lista
 cargarProductos();
 
 
