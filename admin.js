@@ -8,14 +8,10 @@ const mensaje = document.getElementById('mensaje');
 form.onsubmit = async (e) => {
   e.preventDefault();
 
+  // FormData ya incluye tus <input name="imagenes" multiple>
   const formData = new FormData(form);
   formData.append('activo', document.getElementById('activo').checked);
   formData.append('oferta', document.getElementById('oferta').checked);
-
-  const imagenesInput = document.getElementById('imagenes');
-  for (let i = 0; i < imagenesInput.files.length; i++) {
-    formData.append('imagenes', imagenesInput.files[i]);
-  }
 
   const id = document.getElementById('producto-id').value;
   const method = id ? 'PUT' : 'POST';
@@ -47,11 +43,10 @@ async function cargarProductos() {
     const productos = await res.json();
 
     lista.innerHTML = productos.map(p => {
-      // evita undefined si no hay imágenes
       const imgs = Array.isArray(p.imagenes) ? p.imagenes : [];
       const htmlImgs = imgs.map(img => {
-        const src = img.startsWith('/uploads') 
-          ? API_BASE + img 
+        const src = img.startsWith('/uploads')
+          ? API_BASE + img
           : img;
         return `<img src="${src}" width="100" style="margin-right:5px" />`;
       }).join('');
@@ -107,8 +102,6 @@ function mostrarMensaje(texto, exito = true) {
 }
 
 cargarProductos();
-
-
 
 
 
