@@ -1,3 +1,4 @@
+// admin.js
 const API_URL  = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev/productos';
 const API_BASE = API_URL.replace('/productos', '');
 
@@ -8,21 +9,23 @@ const modalForm  = document.getElementById('modal-form');
 const modalClose = document.getElementById('modal-close');
 const form       = document.getElementById('form-producto');
 
+// Helpers
 const get = id => document.getElementById(id);
 const val = id => get(id).value;
 
-// Abrir/cerrar modal
+// Abrir y cerrar modal
 btnNuevo.addEventListener('click', () => abrirModal());
 modalClose.addEventListener('click', cerrarModal);
 
-// Crear o editar
-form.onsubmit = async (e) => {
+// Submit: crear o editar
+form.onsubmit = async e => {
   e.preventDefault();
   const fd = new FormData();
   ['nombre','precio','talle','descripcion'].forEach(f => fd.append(f, val(f)));
   fd.append('activo', get('activo').checked);
   fd.append('oferta', get('oferta').checked);
   for (const file of get('imagenes').files) fd.append('imagenes', file);
+
   const id = val('producto-id');
   if (id) fd.append('id', id);
 
@@ -40,19 +43,21 @@ form.onsubmit = async (e) => {
   }
 };
 
-// Carga y renderiza
+// Carga y pinta la lista
 async function cargarProductos() {
   lista.innerHTML = '';
   try {
     const res  = await fetch(API_URL);
+    if (!res.ok) throw new Error();
     const data = await res.json();
 
     data.forEach(p => {
-      // DEBUG: ver p e p.id
-      console.log('Renderizando producto:', p, 'id:', p.id);
+      // DEBUG: verifica p.id
+      console.log('Renderizando p.id =', p.id, 'p =', p);
 
       const card = document.createElement('div');
-      card.className = 'card';
+      card.className  = 'card';
+      card.dataset.id = p.id;
 
       card.innerHTML = `
         <h3>${p.nombre} - $${p.precio}</h3>
@@ -63,28 +68,28 @@ async function cargarProductos() {
       // Imágenes
       (Array.isArray(p.imagenes) ? p.imagenes : []).forEach(img => {
         const src = img.startsWith('/uploads') ? API_BASE + img : img;
-        const i   = document.createElement('img');
-        i.src     = src;
-        i.width   = 80;
-        i.style.margin = '0 5px';
-        card.appendChild(i);
+        const imgEl = document.createElement('img');
+        imgEl.src = src;
+        imgEl.width = 80;
+        imgEl.style.margin = '0 5px';
+        card.appendChild(imgEl);
       });
 
-      // Editar
+      // Botón Editar
       const be = document.createElement('button');
       be.textContent = '✏️ Editar';
-      be.addEventListener('click', () => abrirModal(p));
+      be.onclick = () => abrirModal(p);
       card.appendChild(be);
 
-      // Eliminar
+      // Botón Eliminar
       const bd = document.createElement('button');
       bd.textContent = '🗑️ Eliminar';
       bd.style.marginLeft = '5px';
-      bd.addEventListener('click', async () => {
-        // Aqui uso p.id directamente
-        console.log('Intentando eliminar producto p:', p, 'p.id:', p.id);
+      bd.onclick = async () => {
+        const idToDelete = card.dataset.id;
+        console.log('ID a eliminar:', idToDelete);
         try {
-          const resDel = await fetch(`${API_URL}/${p.id}`, { method: 'DELETE' });
+          const resDel = await fetch(`${API_URL}/${idToDelete}`, { method: 'DELETE' });
           if (!resDel.ok) throw new Error(`Status ${resDel.status}`);
           card.remove();
           mostrarMsgCard(card, '🗑️ Producto eliminado', true);
@@ -92,17 +97,18 @@ async function cargarProductos() {
           console.error('Error eliminando:', err);
           mostrarMsgCard(card, '❌ No se pudo eliminar', false);
         }
-      });
+      };
       card.appendChild(bd);
 
       lista.appendChild(card);
     });
-  } catch {
-    mostrarMsg('❌ No se pudieron cargar', false);
+  } catch (err) {
+    console.error(err);
+    mostrarMsg('❌ No se pudieron cargar los productos', false);
   }
 }
 
-// Abrir modal y cargar datos para edición
+// Abre modal; si recibe p, precarga para editar
 function abrirModal(p = null) {
   form.reset();
   get('producto-id').value = '';
@@ -112,18 +118,18 @@ function abrirModal(p = null) {
     get('precio').value       = p.precio || '';
     get('talle').value        = p.talle || '';
     get('descripcion').value  = p.descripcion || '';
-    get('activo').checked     = !!p.activo;
-    get('oferta').checked     = !!p.oferta;
+    get('activo').checked     = Boolean(p.activo);
+    get('oferta').checked     = Boolean(p.oferta);
   }
   modalForm.classList.add('active');
 }
 
-// Cerrar modal
+// Cierra modal
 function cerrarModal() {
   modalForm.classList.remove('active');
 }
 
-// Mensaje global
+// Notificación global
 function mostrarMsg(txt, ok) {
   mensaje.textContent = txt;
   mensaje.style.display = 'block';
@@ -133,7 +139,7 @@ function mostrarMsg(txt, ok) {
   setTimeout(() => mensaje.style.display = 'none', 3000);
 }
 
-// Mensaje junto a la card
+// Notificación junto al card
 function mostrarMsgCard(card, txt, ok) {
   const prev = card.querySelector('.msg-card');
   if (prev) prev.remove();
@@ -146,7 +152,7 @@ function mostrarMsgCard(card, txt, ok) {
   setTimeout(() => span.remove(), 3000);
 }
 
-// Inicializar
+// Inicial
 cargarProductos();
 
 
