@@ -1,91 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel de Administración</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Productos</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <h1>Administrar Productos</h1>
-  
-  <form id="form-producto" enctype="multipart/form-data">
-    <input type="hidden" id="producto-id" />
-    <label>Nombre: <input type="text" id="nombre" name="nombre" required /></label><br/>
-    <label>Precio: <input type="number" id="precio" name="precio" required /></label><br/>
-    <label>Talle: <input type="text" id="talle" name="talle" /></label><br/>
-    <label>Descripción: <textarea id="descripcion" name="descripcion"></textarea></label><br/>
-    <label>Activo: <input type="checkbox" id="activo" name="activo" /></label><br/>
-    <label>Oferta: <input type="checkbox" id="oferta" name="oferta" /></label><br/>
-    <label>Imágenes: <input type="file" name="imagenes" multiple accept="image/*" /></label><br/>
-    <button type="submit">Guardar</button>
-  </form>
+  <div id="mensaje" class="alert"></div>
+  <button id="btn-nuevo">➕ Nuevo producto</button>
 
-  <h2>Productos</h2>
+  <div id="modal-form" class="modal">
+    <form id="form-producto" enctype="multipart/form-data" class="modal-content">
+      <span id="modal-close" class="close">&times;</span>
+      <input type="hidden" id="producto-id" />
+
+      <label>Nombre: <input type="text" id="nombre" required/></label>
+      <label>Precio: <input type="number" id="precio" required/></label>
+      <label>Talle: <input type="text" id="talle"/></label>
+      <label>Descripción: <textarea id="descripcion"></textarea></label>
+      <label>Activo: <input type="checkbox" id="activo"/></label>
+      <label>Oferta: <input type="checkbox" id="oferta"/></label>
+      <label>Imágenes: <input type="file" id="imagenes" multiple accept="image/*"/></label>
+
+      <button type="submit">Guardar</button>
+    </form>
+  </div>
+
   <div id="lista-productos"></div>
 
-  <script>
-    const API_URL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
-
-    const form = document.getElementById('form-producto');
-    const lista = document.getElementById('lista-productos');
-
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const formData = new FormData(form);
-      formData.append('activo', document.getElementById('activo').checked);
-      formData.append('oferta', document.getElementById('oferta').checked);
-
-      const id = document.getElementById('producto-id').value;
-      const method = id ? 'PUT' : 'POST';
-      const url = id ? `${API_URL}/${id}` : API_URL;
-
-      await fetch(url, {
-        method,
-        body: formData
-      });
-
-      form.reset();
-      document.getElementById('producto-id').value = '';
-      cargarProductos();
-    };
-
-    async function cargarProductos() {
-      const res = await fetch(API_URL);
-      const productos = await res.json();
-      lista.innerHTML = productos.map(p => `
-        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-          <h3>${p.nombre} - $${p.precio}</h3>
-          <p>${p.descripcion}</p>
-          <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
-          ${p.imagenes.map(img => `<img src="${API_URL}${img}" width="100" style="margin-right:5px;"/>`).join('')}
-          <br/>
-          <button onclick="editar(${p.id})">Editar</button>
-          <button onclick="eliminar(${p.id})">Eliminar</button>
-        </div>
-      `).join('');
-    }
-
-    function editar(id) {
-      fetch(`${API_URL}/${id}`).then(res => res.json()).then(p => {
-        document.getElementById('producto-id').value = p.id;
-        document.getElementById('nombre').value = p.nombre;
-        document.getElementById('precio').value = p.precio;
-        document.getElementById('talle').value = p.talle;
-        document.getElementById('descripcion').value = p.descripcion;
-        document.getElementById('activo').checked = p.activo;
-        document.getElementById('oferta').checked = p.oferta;
-      });
-    }
-
-    function eliminar(id) {
-      fetch(`${API_URL}/${id}`, { method: 'DELETE' }).then(cargarProductos);
-    }
-
-    cargarProductos();
-  </script>
+  <script src="admin.js"></script>
 </body>
 </html>
-
 
 
 
