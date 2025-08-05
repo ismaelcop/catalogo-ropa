@@ -7,9 +7,15 @@ const mensaje = document.getElementById('mensaje');
 
 form.onsubmit = async (e) => {
   e.preventDefault();
+
   const formData = new FormData(form);
   formData.append('activo', document.getElementById('activo').checked);
   formData.append('oferta', document.getElementById('oferta').checked);
+
+  const imagenesInput = document.getElementById('imagenes');
+  for (let i = 0; i < imagenesInput.files.length; i++) {
+    formData.append('imagenes', imagenesInput.files[i]);
+  }
 
   const id = document.getElementById('producto-id').value;
   const method = id ? 'PUT' : 'POST';
@@ -28,6 +34,7 @@ form.onsubmit = async (e) => {
     mostrarMensaje("❌ Error al guardar el producto", false);
   }
 };
+
 
 async function cargarProductos() {
   try {
@@ -93,6 +100,7 @@ function mostrarMensaje(texto, exito = true) {
 }
 
 cargarProductos();
+
 
 
 
