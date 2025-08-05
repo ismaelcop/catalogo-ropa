@@ -49,7 +49,7 @@ async function cargarProductos() {
     const res  = await fetch(API_URL);
     if (!res.ok) throw new Error();
     const data = await res.json();
-
+ console.log("📦 Productos recibidos del backend:", productos); //
     data.forEach(p => {
       // CREO LA CARD Y LE ASIGNO data-id
       const card = document.createElement('div');
@@ -152,5 +152,6 @@ function mostrarMsgCard(card, txt, ok) {
 
 // Inicializa la lista
 cargarProductos();
+
 
 
