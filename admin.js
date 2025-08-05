@@ -19,10 +19,16 @@ modalClose.addEventListener('click', cerrarModal);
 form.onsubmit = async (e) => {
   e.preventDefault();
   const fd = new FormData();
-  ['nombre','precio','talle','descripcion'].forEach(f => fd.append(f, val(f)));
-  fd.append('activo',  get('activo').checked);
-  fd.append('oferta',  get('oferta').checked);
 
+  // Campos del formulario
+  fd.append('nombre',      val('nombre'));
+  fd.append('precio',      val('precio'));
+  fd.append('talle',       val('talle'));
+  fd.append('descripcion', val('descripcion'));
+  fd.append('activo',      get('activo').checked);
+  fd.append('oferta',      get('oferta').checked);
+
+  // Archivos
   for (const file of get('imagenes').files) {
     fd.append('imagenes', file);
   }
@@ -48,32 +54,34 @@ form.onsubmit = async (e) => {
 async function cargarProductos() {
   lista.innerHTML = '';
   try {
-    const res = await fetch(API_URL);
+    const res  = await fetch(API_URL);
     const data = await res.json();
 
     data.forEach(p => {
       const card = document.createElement('div');
-      card.className = 'card';
-      card.dataset.id = p.id;
+      card.className   = 'card';
+      card.dataset.id  = p.id;  // Fija el ID en el atributo data-id
 
       card.innerHTML = `
         <h3>${p.nombre} - $${p.precio}</h3>
         <p>${p.descripcion}</p>
-        <p>Talle: ${p.talle} - ${p.activo?'Activo':'Inactivo'} ${p.oferta? '(Oferta)':''}</p>
+        <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
       `;
 
       // Imágenes
-      (Array.isArray(p.imagenes)? p.imagenes: []).forEach(img => {
+      (Array.isArray(p.imagenes) ? p.imagenes : []).forEach(img => {
         const src = img.startsWith('/uploads') ? API_BASE + img : img;
         const i   = document.createElement('img');
-        i.src     = src; i.width = 80; i.style.margin='0 5px';
+        i.src     = src;
+        i.width   = 80;
+        i.style.margin = '0 5px';
         card.appendChild(i);
       });
 
       // Editar
       const be = document.createElement('button');
       be.textContent = '✏️ Editar';
-      be.onclick = () => abrirModal(p);
+      be.addEventListener('click', () => abrirModal(p));
       card.appendChild(be);
 
       // Eliminar
@@ -81,12 +89,15 @@ async function cargarProductos() {
       bd.textContent = '🗑️ Eliminar';
       bd.style.marginLeft = '5px';
       bd.addEventListener('click', async () => {
+        const idToDelete = card.dataset.id;
+        console.log('Intentando eliminar ID:', idToDelete);
         try {
-          const r = await fetch(`${API_URL}/${p.id}`, { method: 'DELETE' });
-          if (!r.ok) throw new Error();
-          card.remove();
-          mostrarMsgCard(card, '🗑️ Eliminado', true);
-        } catch {
+          const resDel = await fetch(`${API_URL}/${idToDelete}`, { method: 'DELETE' });
+          if (!resDel.ok) throw new Error(`Status ${resDel.status}`);
+          card.remove();  // quita el card de la UI
+          mostrarMsgCard(card, '🗑️ Producto eliminado', true);
+        } catch (err) {
+          console.error('Error eliminando:', err);
           mostrarMsgCard(card, '❌ No se pudo eliminar', false);
         }
       });
@@ -99,7 +110,7 @@ async function cargarProductos() {
   }
 }
 
-// Modal
+// Abrir modal y cargar datos para edición
 function abrirModal(p = null) {
   form.reset();
   get('producto-id').value = '';
@@ -114,35 +125,37 @@ function abrirModal(p = null) {
   }
   modalForm.classList.add('active');
 }
+
+// Cerrar modal
 function cerrarModal() {
   modalForm.classList.remove('active');
 }
 
-// Mensajes
+// Mensaje global
 function mostrarMsg(txt, ok) {
   mensaje.textContent = txt;
   mensaje.style.display = 'block';
-  mensaje.style.background = ok ? '#d4edda' : '#f8d7da';
-  mensaje.style.color      = ok ? '#155724' : '#721c24';
-  mensaje.style.border     = ok ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+  mensaje.style.backgroundColor = ok ? '#d4edda' : '#f8d7da';
+  mensaje.style.color           = ok ? '#155724' : '#721c24';
+  mensaje.style.border          = ok ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
   setTimeout(() => mensaje.style.display = 'none', 3000);
 }
 
+// Mensaje junto a la card
 function mostrarMsgCard(card, txt, ok) {
   const prev = card.querySelector('.msg-card');
   if (prev) prev.remove();
   const span = document.createElement('span');
-  span.className = 'msg-card';
-  span.textContent = txt;
+  span.className    = 'msg-card';
+  span.textContent  = txt;
   span.style.marginLeft = '10px';
-  span.style.color = ok ? '#155724' : '#721c24';
+  span.style.color  = ok ? '#155724' : '#721c24';
   card.appendChild(span);
   setTimeout(() => span.remove(), 3000);
 }
 
-// Inicial
+// Inicializar
 cargarProductos();
-
 
 
 
