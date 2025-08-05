@@ -32,20 +32,30 @@ fetch(backendURL)
     alert("No se pudieron cargar los productos.");
   });
 
-function mostrarCatalogo() {
+function mostrarCatalogo(productos) {
+  const catalogo = document.getElementById("catalogo");
   catalogo.innerHTML = "";
-  productos.forEach(prod => {
+
+  productos.forEach(producto => {
+    // Verifica si imagenes es un array y tiene al menos una imagen
+    const imagenPrincipal = Array.isArray(producto.imagenes) && producto.imagenes.length > 0
+      ? producto.imagenes[0]
+      : "https://via.placeholder.com/150"; // imagen por defecto
+
     const card = document.createElement("div");
-    card.className = "card";
+    card.className = "producto";
     card.innerHTML = `
-      <img src="${prod.imagenes[0].startsWith('/uploads') ? backendBase + prod.imagenes[0] : prod.imagenes[0]}" alt="${prod.nombre}">
-      <h3>${prod.nombre}</h3>
-      <p>$${prod.precio}</p>
+      <img src="${imagenPrincipal}" alt="${producto.nombre}" />
+      <h3>${producto.nombre} - $${producto.precio}</h3>
+      <p>${producto.descripcion}</p>
+      <p>Talle: ${producto.talle} - Activo</p>
+      <button onclick="editarProducto(${producto.id})">✏️ Editar</button>
+      <button onclick="eliminarProducto(${producto.id})">🗑️ Eliminar</button>
     `;
-    card.onclick = () => mostrarDetalle(prod);
     catalogo.appendChild(card);
   });
 }
+
 
 function mostrarDetalle(prod) {
   productoActual = prod;
@@ -116,4 +126,5 @@ document.getElementById("formulario-pedido").onsubmit = (e) => {
   carrito = [];
   modalCarrito.classList.add("hidden");
 };
+
 
