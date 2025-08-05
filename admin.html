@@ -3,108 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Administrador de Productos</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 10;
-    }
-    .modal.active { display: flex; }
-
-    .modal-content {
-      background: #fff;
-      padding: 1.5rem;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 500px;
-      position: relative;
-    }
-    .modal-content .close {
-      position: absolute;
-      top: 0.5rem; right: 0.5rem;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    #btn-nuevo {
-      margin-bottom: 1rem;
-      padding: 0.5rem 1rem;
-    }
-
-    #mensaje {
-      display:none;
-      padding:10px;
-      margin-bottom:10px;
-      border-radius:5px;
-    }
-
-    .producto {
-      border: 1px solid #ccc;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      border-radius: 8px;
-    }
-
-    .producto img {
-      max-width: 100px;
-      display: inline-block;
-      margin-right: 5px;
-    }
-
-    .botones {
-      margin-top: 10px;
-    }
-
-    .botones button {
-      margin-right: 5px;
-    }
-  </style>
+  <title>Panel de Administración</title>
 </head>
 <body>
   <h1>Administrar Productos</h1>
-  <button id="btn-nuevo">➕ Nuevo producto</button>
+  
+  <form id="form-producto" enctype="multipart/form-data">
+    <input type="hidden" id="producto-id" />
+    <label>Nombre: <input type="text" id="nombre" name="nombre" required /></label><br/>
+    <label>Precio: <input type="number" id="precio" name="precio" required /></label><br/>
+    <label>Talle: <input type="text" id="talle" name="talle" /></label><br/>
+    <label>Descripción: <textarea id="descripcion" name="descripcion"></textarea></label><br/>
+    <label>Activo: <input type="checkbox" id="activo" name="activo" /></label><br/>
+    <label>Oferta: <input type="checkbox" id="oferta" name="oferta" /></label><br/>
+    <label>Imágenes: <input type="file" name="imagenes" multiple accept="image/*" /></label><br/>
+    <button type="submit">Guardar</button>
+  </form>
 
-  <div id="mensaje"></div>
+  <h2>Productos</h2>
   <div id="lista-productos"></div>
 
-  <!-- Modal del formulario -->
-  <div id="modal-form" class="modal">
-    <div class="modal-content">
-      <span id="modal-close" class="close">&times;</span>
-      <form id="form-producto" enctype="multipart/form-data">
-        <input type="hidden" id="producto-id" name="id">
+  <script>
+    const API_URL = 'https://0549afa3-f5f3-433d-a9ee-469bca56b06c-00-3eup8qamcaglh.picard.replit.dev';
 
-        <label>Nombre</label>
-        <input type="text" id="nombre" name="nombre" required />
+    const form = document.getElementById('form-producto');
+    const lista = document.getElementById('lista-productos');
 
-        <label>Precio</label>
-        <input type="number" id="precio" name="precio" required />
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      formData.append('activo', document.getElementById('activo').checked);
+      formData.append('oferta', document.getElementById('oferta').checked);
 
-        <label>Talle</label>
-        <input type="text" id="talle" name="talle" required />
+      const id = document.getElementById('producto-id').value;
+      const method = id ? 'PUT' : 'POST';
+      const url = id ? `${API_URL}/${id}` : API_URL;
 
-        <label>Descripción</label>
-        <textarea id="descripcion" name="descripcion"></textarea>
+      await fetch(url, {
+        method,
+        body: formData
+      });
 
-        <label>Imágenes</label>
-        <input type="file" id="imagenes" name="imagenes" multiple />
+      form.reset();
+      document.getElementById('producto-id').value = '';
+      cargarProductos();
+    };
 
-        <label><input type="checkbox" id="activo" name="activo"> Activo</label>
-        <label><input type="checkbox" id="oferta" name="oferta"> Oferta</label>
+    async function cargarProductos() {
+      const res = await fetch(API_URL);
+      const productos = await res.json();
+      lista.innerHTML = productos.map(p => `
+        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+          <h3>${p.nombre} - $${p.precio}</h3>
+          <p>${p.descripcion}</p>
+          <p>Talle: ${p.talle} - ${p.activo ? 'Activo' : 'Inactivo'} ${p.oferta ? '(Oferta)' : ''}</p>
+          ${p.imagenes.map(img => `<img src="${API_URL}${img}" width="100" style="margin-right:5px;"/>`).join('')}
+          <br/>
+          <button onclick="editar(${p.id})">Editar</button>
+          <button onclick="eliminar(${p.id})">Eliminar</button>
+        </div>
+      `).join('');
+    }
 
-        <button type="submit">Guardar</button>
-      </form>
-    </div>
-  </div>
+    function editar(id) {
+      fetch(`${API_URL}/${id}`).then(res => res.json()).then(p => {
+        document.getElementById('producto-id').value = p.id;
+        document.getElementById('nombre').value = p.nombre;
+        document.getElementById('precio').value = p.precio;
+        document.getElementById('talle').value = p.talle;
+        document.getElementById('descripcion').value = p.descripcion;
+        document.getElementById('activo').checked = p.activo;
+        document.getElementById('oferta').checked = p.oferta;
+      });
+    }
 
-  <script src="admin.js"></script>
+    function eliminar(id) {
+      fetch(`${API_URL}/${id}`, { method: 'DELETE' }).then(cargarProductos);
+    }
+
+    cargarProductos();
+  </script>
 </body>
 </html>
 
