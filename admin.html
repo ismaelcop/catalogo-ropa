@@ -1,32 +1,26 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Admin Productos</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Administrador de Productos</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <h1>Administrar Productos</h1>
-  <div id="mensaje" class="alert"></div>
-  <button id="btn-nuevo">➕ Nuevo producto</button>
 
-  <div id="modal-form" class="modal">
-    <form id="form-producto" enctype="multipart/form-data" class="modal-content">
-      <span id="modal-close" class="close">&times;</span>
-      <input type="hidden" id="producto-id" />
-
-      <label>Nombre: <input type="text" id="nombre" required/></label>
-      <label>Precio: <input type="number" id="precio" required/></label>
-      <label>Talle: <input type="text" id="talle"/></label>
-      <label>Descripción: <textarea id="descripcion"></textarea></label>
-      <label>Activo: <input type="checkbox" id="activo"/></label>
-      <label>Oferta: <input type="checkbox" id="oferta"/></label>
-      <label>Imágenes: <input type="file" id="imagenes" multiple accept="image/*"/></label>
-
-      <button type="submit">Guardar</button>
-    </form>
-  </div>
+<div id="mensaje" style="display:none; padding: 10px; margin: 10px 0; border-radius: 5px;"></div>
+  <form id="form-producto" enctype="multipart/form-data">
+    <input type="hidden" id="producto-id">
+    <input type="text" id="nombre" placeholder="Nombre" required />
+    <input type="number" id="precio" placeholder="Precio" required />
+    <input type="text" id="talle" placeholder="Talle" required />
+    <textarea id="descripcion" placeholder="Descripción"></textarea>
+    <input type="file" id="imagenes" multiple />
+    <label><input type="checkbox" id="activo"> Activo</label>
+    <label><input type="checkbox" id="oferta"> Oferta</label>
+    <button type="submit">Guardar</button>
+  </form>
 
   <div id="lista-productos"></div>
 
