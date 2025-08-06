@@ -6,16 +6,13 @@ const form    = document.getElementById('form-producto');
 const lista   = document.getElementById('lista-productos');
 const mensaje = document.getElementById('mensaje');
 
-// Envío del formulario (crear/editar)
 form.onsubmit = async e => {
   e.preventDefault();
   const formData = new FormData(form);
   formData.append('activo', document.getElementById('activo').checked);
   formData.append('oferta', document.getElementById('oferta').checked);
 
-  // Agrego imágenes seleccionadas
-  const archivos = document.getElementById('imagenes').files;
-  for (let file of archivos) {
+  for (const file of document.getElementById('imagenes').files) {
     formData.append('imagenes', file);
   }
 
@@ -26,29 +23,26 @@ form.onsubmit = async e => {
   try {
     const res = await fetch(url, { method, body: formData });
     if (!res.ok) throw new Error();
-    mostrarMensaje('✅ Producto guardado con éxito', true);
+    mostrarMensaje('✅ Producto guardado', true);
     form.reset();
     document.getElementById('producto-id').value = '';
     cargarProductos();
   } catch {
-    mostrarMensaje('❌ Error al guardar el producto', false);
+    mostrarMensaje('❌ Error al guardar', false);
   }
 };
 
-// Carga y renderiza productos
 async function cargarProductos() {
   try {
     const res = await fetch(API_URL);
-    const ct  = res.headers.get('content-type') || '';
-    if (!res.ok || !ct.includes('application/json')) throw new Error();
-
+    if (!res.ok) throw new Error();
     const productos = await res.json();
+
     lista.innerHTML = productos.map(p => {
-      // Protejo imágenes undefined
       const imgs = Array.isArray(p.imagenes) ? p.imagenes : [];
-      const imgsHtml = imgs.map(img =>
-        `<img src="${API_BASE + img}" width="100" style="margin-right:5px">`
-      ).join('');
+      const imgsHtml = imgs
+        .map(img => `<img src="${API_BASE + img}" width="100" style="margin-right:5px">`)
+        .join('');
 
       return `
         <div style="border:1px solid #ccc;padding:10px;margin:10px 0;">
@@ -67,22 +61,20 @@ async function cargarProductos() {
   }
 }
 
-// Editar
 function editar(id) {
   fetch(`${API_URL}/${id}`)
     .then(r => r.json())
     .then(p => {
       document.getElementById('producto-id').value = p.id;
-      document.getElementById('nombre').value     = p.nombre || '';
-      document.getElementById('precio').value     = p.precio ?? '';
-      document.getElementById('talle').value      = p.talle || '';
-      document.getElementById('descripcion').value= p.descripcion || '';
-      document.getElementById('activo').checked   = !!p.activo;
-      document.getElementById('oferta').checked   = !!p.oferta;
+      document.getElementById('nombre').value      = p.nombre || '';
+      document.getElementById('precio').value      = p.precio ?? '';
+      document.getElementById('talle').value       = p.talle || '';
+      document.getElementById('descripcion').value = p.descripcion || '';
+      document.getElementById('activo').checked    = !!p.activo;
+      document.getElementById('oferta').checked    = !!p.oferta;
     });
 }
 
-// Eliminar
 function eliminar(id) {
   fetch(`${API_URL}/${id}`, { method: 'DELETE' })
     .then(r => {
@@ -90,20 +82,17 @@ function eliminar(id) {
       mostrarMensaje('🗑️ Producto eliminado', true);
       cargarProductos();
     })
-    .catch(() => mostrarMensaje('❌ Error al eliminar producto', false));
+    .catch(() => mostrarMensaje('❌ Error al eliminar', false));
 }
 
-// Mensajes
-function mostrarMensaje(txt, ok) {
-  mensaje.textContent            = txt;
-  mensaje.style.display          = 'block';
-  mensaje.style.backgroundColor  = ok ? '#d4edda' : '#f8d7da';
-  mensaje.style.color            = ok ? '#155724' : '#721c24';
-  mensaje.style.border           = ok ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
+function mostrarMensaje(texto, ok) {
+  mensaje.textContent           = texto;
+  mensaje.style.display         = 'block';
+  mensaje.style.backgroundColor = ok ? '#d4edda' : '#f8d7da';
+  mensaje.style.color           = ok ? '#155724' : '#721c24';
+  mensaje.style.border          = ok ? '1px solid #c3e6cb' : '1px solid #f5c6cb';
   setTimeout(() => mensaje.style.display = 'none', 3000);
 }
 
-// Inicio
 cargarProductos();
-
 
